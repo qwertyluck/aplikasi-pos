@@ -340,18 +340,56 @@
     </div>
     
     <script>
-        // --- KONEKSI SUPABASE CLOUD ---
-        const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ==========================================
+        // 1. FUNGSI MENU UTAMA 
+        // ==========================================
+        function bukaModalAdmin() {
+            renderTabelAdmin();
+            document.getElementById('modal-admin').style.display = 'flex';
+        }
 
-        // --- 1. SETUP DATABASE AWAL ---
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('pos_dark_mode', isDark);
+            showToast(isDark ? "Mode Gelap diaktifkan" : "Mode Terang diaktifkan", 'success');
+        }
+
+        function bukaModalDashboard() {
+            const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + trx.total, 0);
+            document.getElementById('dash-pendapatan').innerText = `Rp ${formatRupiah(totalPendapatan)}`;
+            document.getElementById('dash-trx').innerText = riwayatPenjualan.length;
+            document.getElementById('modal-dashboard').style.display = 'flex';
+        }
+
+        function tutupModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
+        }
+
+        // ==========================================
+        // 2. KONEKSI SUPABASE (ANTI CRASH)
+        // ==========================================
+        let supabase = null;
+        try {
+            if (window.supabase) {
+                const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
+                const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.warn("Library Supabase tidak dimuat. Aplikasi beroperasi dengan Local Storage.");
+            }
+        } catch (error) {
+            console.error("Gagal inisialisasi Supabase:", error);
+        }
+
+        // ==========================================
+        // 3. SETUP DATA & STATE MANAJEMEN
+        // ==========================================
         const databaseAwal = [
             { id: 1, barcode: '0001', nama: 'Semen (Sak)', harga: 65000, ikon: '🧱', kategori: 'Bahan Bangunan', stok: 10 },
             { id: 2, barcode: '0002', nama: 'Cat Matex (Kaleng)', harga: 125000, ikon: '🎨', kategori: 'Bahan Bangunan', stok: 10 }
         ];
 
-        // --- 2. MANAJEMEN STATE & PAGINASI ---
         let daftarProduk = JSON.parse(localStorage.getItem('pos_produk')) || databaseAwal;
         let keranjang = JSON.parse(localStorage.getItem('pos_keranjang')) || [];
         let riwayatPenjualan = JSON.parse(localStorage.getItem('pos_riwayat')) || [];
@@ -363,11 +401,12 @@
         const itemsPerPage = 16; 
         let searchTimeout = null;
 
-        // Memuat tema gelap otomatis jika sebelumnya aktif
         if(localStorage.getItem('pos_dark_mode') === 'true') document.body.classList.add('dark-mode');
         const formatRupiah = (angka) => new Intl.NumberFormat('id-ID').format(angka);
 
-        // --- FITUR TOAST NOTIFICATION ---
+        // ==========================================
+        // 4. SEMUA FUNGSI APLIKASI
+        // ==========================================
         function showToast(pesan, tipe = 'success') {
             const wadah = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -378,15 +417,6 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // --- FITUR DARK MODE ---
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('pos_dark_mode', isDark);
-            showToast(isDark ? "Mode Gelap diaktifkan" : "Mode Terang diaktifkan", 'success');
-        }
-
-        // --- LOGIKA KASIR & PAGINASI ---
         function renderKategori() {
             const container = document.getElementById('kategori-container');
             const kategoriUnik = ['Semua', ...new Set(daftarProduk.map(p => p.kategori))];
@@ -417,9 +447,7 @@
             });
 
             const totalPages = Math.ceil(produkTampil.length / itemsPerPage);
-            if (currentPage > totalPages && totalPages > 0) {
-                currentPage = totalPages;
-            }
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
 
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -461,12 +489,7 @@
             const prevBtn = document.createElement('button');
             prevBtn.innerText = '‹ Prev';
             prevBtn.disabled = currentPage === 1;
-            prevBtn.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderKatalog();
-                }
-            };
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderKatalog(); } };
             paginationContainer.appendChild(prevBtn);
 
             const info = document.createElement('span');
@@ -478,21 +501,13 @@
             const nextBtn = document.createElement('button');
             nextBtn.innerText = 'Next ›';
             nextBtn.disabled = currentPage === totalPages;
-            nextBtn.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderKatalog();
-                }
-            };
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderKatalog(); } };
             paginationContainer.appendChild(nextBtn);
         }
 
         document.getElementById('search-bar').addEventListener('input', () => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentPage = 1;
-                renderKatalog();
-            }, 300);
+            searchTimeout = setTimeout(() => { currentPage = 1; renderKatalog(); }, 300);
         });
 
         function tambahKeKeranjang(idProduk) {
@@ -600,23 +615,6 @@
             simpanKeStorage(); kosongkanKeranjang(true); renderKatalog(); renderTabelAdmin();
         }
 
-        // --- 3. FITUR ADMIN & MODAL ---
-        function bukaModalAdmin() {
-            renderTabelAdmin();
-            document.getElementById('modal-admin').style.display = 'flex';
-        }
-
-        function bukaModalDashboard() {
-            const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + trx.total, 0);
-            document.getElementById('dash-pendapatan').innerText = `Rp ${formatRupiah(totalPendapatan)}`;
-            document.getElementById('dash-trx').innerText = riwayatPenjualan.length;
-            document.getElementById('modal-dashboard').style.display = 'flex';
-        }
-
-        function tutupModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-        }
-
         function dapatkanBarcodeBaru() {
             const maxId = daftarProduk.length > 0 ? Math.max(...daftarProduk.map(p => p.id)) : 0;
             const newId = maxId + 1;
@@ -667,15 +665,7 @@
 
             const idBaru = dapatkanBarcodeBaru();
             
-            daftarProduk.push({
-                id: idBaru.id,
-                barcode: idBaru.barcode,
-                nama: nama,
-                harga: harga,
-                ikon: '📦',
-                kategori: kategori,
-                stok: stok
-            });
+            daftarProduk.push({ id: idBaru.id, barcode: idBaru.barcode, nama: nama, harga: harga, ikon: '📦', kategori: kategori, stok: stok });
 
             simpanKeStorage();
             renderKategori();
@@ -693,32 +683,18 @@
             if(confirm("Yakin ingin menghapus barang ini secara permanen dari database?")) {
                 daftarProduk = daftarProduk.filter(p => p.id !== idProduk);
                 keranjang = keranjang.filter(k => k.id !== idProduk); 
-
-                simpanKeStorage();
-                renderKategori();
-                renderKatalog();
-                perbaruiTampilanKeranjang();
-                renderTabelAdmin();
+                simpanKeStorage(); renderKategori(); renderKatalog(); perbaruiTampilanKeranjang(); renderTabelAdmin();
                 showToast('Produk Dihapus!', 'success');
             }
         }
 
         function hapusSemuaBarang() {
-            if (daftarProduk.length === 0) {
-                return showToast("Daftar barang sudah kosong!", "error");
-            }
-
-            if (confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH daftar barang secara menyeluruh? Tindakan ini tidak dapat dibatalkan.")) {
+            if (daftarProduk.length === 0) return showToast("Daftar barang sudah kosong!", "error");
+            if (confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH daftar barang? Tindakan ini tidak dapat dibatalkan.")) {
                 daftarProduk = [];
                 keranjang = []; 
                 currentPage = 1;
-                
-                simpanKeStorage();
-                renderKategori();
-                renderKatalog();
-                perbaruiTampilanKeranjang();
-                renderTabelAdmin();
-                
+                simpanKeStorage(); renderKategori(); renderKatalog(); perbaruiTampilanKeranjang(); renderTabelAdmin();
                 showToast("Semua barang berhasil dihapus dari sistem!", "success");
             }
         }
@@ -733,14 +709,10 @@
                 const lines = text.split(/\r\n|\n|\r/); 
                 let jumlahDiimpor = 0;
 
-                let pemisah = ';';
-                if (lines.length > 0 && lines[0].includes(',')) {
-                    pemisah = ',';
-                }
+                let pemisah = lines.length > 0 && lines[0].includes(',') ? ',' : ';';
 
                 for (let i = 1; i < lines.length; i++) { 
                     if (!lines[i].trim()) continue; 
-                    
                     const kolom = lines[i].split(pemisah); 
                     
                     if (kolom.length >= 2) {
@@ -749,45 +721,27 @@
                         
                         let hargaBarang = 0;
                         if (kolom.length >= 4 && kolom[3]) {
-                            let hargaBersih = kolom[3].replace(/['"]/g, '').replace(/[^0-9]/g, '');
-                            hargaBarang = parseInt(hargaBersih) || 0;
+                            hargaBarang = parseInt(kolom[3].replace(/['"]/g, '').replace(/[^0-9]/g, '')) || 0;
                         }
 
                         let stokBarang = 0;
                         if (kolom.length >= 5 && kolom[4]) {
-                            let stokBersih = kolom[4].replace(/['"]/g, '').replace(/[^0-9]/g, '');
-                            stokBersih = parseInt(stokBersih) || 0;
-                            stokBarang = stokBersih;
+                            stokBarang = parseInt(kolom[4].replace(/['"]/g, '').replace(/[^0-9]/g, '')) || 0;
                         }
                         
                         if (!nama) continue; 
 
                         const idBaru = dapatkanBarcodeBaru();
-                        
-                        daftarProduk.push({
-                            id: idBaru.id,
-                            barcode: idBaru.barcode,
-                            nama: satuan ? `${nama} (${satuan})` : nama,
-                            harga: hargaBarang,
-                            ikon: '📦',
-                            kategori: 'Barang Impor', 
-                            stok: stokBarang
-                        });
+                        daftarProduk.push({ id: idBaru.id, barcode: idBaru.barcode, nama: satuan ? `${nama} (${satuan})` : nama, harga: hargaBarang, ikon: '📦', kategori: 'Barang Impor', stok: stokBarang });
                         jumlahDiimpor++;
                     }
                 }
 
                 currentPage = 1; 
-                simpanKeStorage();
-                renderKategori();
-                renderKatalog();
-                renderTabelAdmin();
+                simpanKeStorage(); renderKategori(); renderKatalog(); renderTabelAdmin();
                 
-                if (jumlahDiimpor > 0) {
-                    showToast(`${jumlahDiimpor} barang (beserta harga & stok) berhasil diimpor!`, 'success');
-                } else {
-                    showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
-                }
+                if (jumlahDiimpor > 0) showToast(`${jumlahDiimpor} barang berhasil diimpor!`, 'success');
+                else showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
                 
                 event.target.value = ''; 
             };
@@ -799,7 +753,9 @@
             localStorage.setItem('pos_produk', JSON.stringify(daftarProduk));
         }
 
-        // Inisialisasi awal UI
+        // ==========================================
+        // INISIALISASI AWAL UI
+        // ==========================================
         renderKategori();
         renderKatalog();
         perbaruiTampilanKeranjang();
