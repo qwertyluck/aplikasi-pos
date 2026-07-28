@@ -371,7 +371,7 @@
         let supabaseClient = null;
         try {
             if (window.supabase) {
-                const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
+                const SUPABASE_URL = 'postgresql://postgres.kidzsioyibtrxgplnodz:[ApelManis_01]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres';
                 const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
