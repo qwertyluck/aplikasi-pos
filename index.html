@@ -282,13 +282,32 @@
     <script>
         // --- 1. SETUP DATABASE & BARCODE ---
         const databaseAwal = [
-            { id: 1, barcode: '111', nama: 'Kopi Susu', harga: 15000, ikon: '☕', kategori: 'Minuman', stok: 20 },
-            { id: 2, barcode: '222', nama: 'Roti Bakar', harga: 12000, ikon: '🍞', kategori: 'Makanan', stok: 15 },
-            { id: 3, barcode: '333', nama: 'Es Teh Manis', harga: 5000, ikon: '🍹', kategori: 'Minuman', stok: 30 },
-            { id: 4, barcode: '444', nama: 'Mie Goreng', harga: 18000, ikon: '🍜', kategori: 'Makanan', stok: 10 },
-            { id: 5, barcode: '555', nama: 'Nasi Goreng', harga: 20000, ikon: '🍛', kategori: 'Makanan', stok: 8 },
-            { id: 6, barcode: '666', nama: 'Kentang Goreng', harga: 10000, ikon: '🍟', kategori: 'Cemilan', stok: 12 },
-            { id: 7, barcode: '777', nama: 'Keripik Pedas', harga: 8000, ikon: '🌶️', kategori: 'Cemilan', stok: 0 }
+            // --- KATEGORI: BAHAN BANGUNAN ---
+            { id: 1, barcode: '101', nama: 'Semen (Sak)', harga: 65000, ikon: '🧱', kategori: 'Bahan Bangunan', stok: 10 },
+            { id: 2, barcode: '102', nama: 'Semen Biasa (Kilo)', harga: 3000, ikon: '🧱', kategori: 'Bahan Bangunan', stok: 50 },
+            { id: 3, barcode: '103', nama: 'Kaca Meja (Lembar)', harga: 150000, ikon: '🪟', kategori: 'Bahan Bangunan', stok: 5 },
+            { id: 4, barcode: '104', nama: 'Cat Matex (Kaleng)', harga: 125000, ikon: '🎨', kategori: 'Bahan Bangunan', stok: 10 },
+
+            // --- KATEGORI: KONSUMSI ---
+            { id: 5, barcode: '201', nama: 'Air Isi Ulang (Galon)', harga: 6000, ikon: '💧', kategori: 'Konsumsi', stok: 15 },
+            { id: 6, barcode: '202', nama: 'Air Mineral Kemasan (Dus)', harga: 35000, ikon: '🚰', kategori: 'Konsumsi', stok: 5 },
+            { id: 7, barcode: '203', nama: 'Daun Teh Celup (Pcs)', harga: 6500, ikon: '🍵', kategori: 'Konsumsi', stok: 20 },
+            { id: 8, barcode: '204', nama: 'Papper Cup (Pcs)', harga: 500, ikon: '🥤', kategori: 'Konsumsi', stok: 100 },
+
+            // --- KATEGORI: ATK (ALAT TULIS KANTOR) ---
+            { id: 9, barcode: '301', nama: 'Pena Pilot Ball Liner', harga: 30000, ikon: '🖊️', kategori: 'ATK', stok: 1 },
+            { id: 10, barcode: '302', nama: 'Spidol Snowman (Buah)', harga: 8000, ikon: '🖍️', kategori: 'ATK', stok: 1 },
+            { id: 11, barcode: '303', nama: 'Spidol Permanen (Buah)', harga: 9500, ikon: '🖋️', kategori: 'ATK', stok: 2 },
+            { id: 12, barcode: '304', nama: 'Binder Clip 300 (Dos)', harga: 12000, ikon: '📎', kategori: 'ATK', stok: 10 },
+            { id: 13, barcode: '305', nama: 'Penghapus Pensil (Buah)', harga: 3000, ikon: '🧽', kategori: 'ATK', stok: 1 },
+            { id: 14, barcode: '306', nama: 'Buku Tulis (Buah)', harga: 4000, ikon: '📓', kategori: 'ATK', stok: 20 },
+            { id: 15, barcode: '307', nama: 'Kwitansi Kecil (Buah)', harga: 3000, ikon: '🧾', kategori: 'ATK', stok: 2 },
+            { id: 16, barcode: '308', nama: 'Cutter Besar (Buah)', harga: 15000, ikon: '🔪', kategori: 'ATK', stok: 2 },
+            { id: 17, barcode: '309', nama: 'Lem Kertas (Buah)', harga: 4500, ikon: '🧴', kategori: 'ATK', stok: 1 },
+            { id: 18, barcode: '310', nama: 'Lakban Besar (Buah)', harga: 12500, ikon: '📼', kategori: 'ATK', stok: 3 },
+            { id: 19, barcode: '311', nama: 'Isi Staples Sedang (Dus)', harga: 4000, ikon: '🖇️', kategori: 'ATK', stok: 1 },
+            { id: 20, barcode: '312', nama: 'Kertas HVS Warna (Rim)', harga: 55000, ikon: '📄', kategori: 'ATK', stok: 2 },
+            { id: 21, barcode: '313', nama: 'HVS Putih (Dus)', harga: 230000, ikon: '📄', kategori: 'ATK', stok: 1 }
         ];
 
         // --- 2. MANAJEMEN STATE LOCAL STORAGE ---
