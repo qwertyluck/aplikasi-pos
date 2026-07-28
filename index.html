@@ -593,7 +593,7 @@
             }
         }
 
-        // Impor Daftar Barang dari CSV (Versi Lebih Pintar & Tahan Banting)
+// Impor Daftar Barang dari CSV (Versi Lengkap: Nama, Harga, & Stok)
         function imporDataCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -602,11 +602,11 @@
             reader.onload = function(e) {
                 const text = e.target.result;
                 
-                // PERBAIKAN 1: Membaca segala jenis format baris baru (Windows, Mac, Linux)
+                // Membaca segala jenis format baris baru (Windows, Mac, Linux)
                 const lines = text.split(/\r\n|\n|\r/); 
                 let jumlahDiimpor = 0;
 
-                // PERBAIKAN 2: Deteksi otomatis apakah pemisahnya menggunakan koma (,) atau titik koma (;)
+                // Deteksi otomatis apakah pemisahnya menggunakan koma (,) atau titik koma (;)
                 let pemisah = ';';
                 if (lines.length > 0 && lines[0].includes(',')) {
                     pemisah = ',';
@@ -620,9 +620,22 @@
                     
                     // Pastikan minimal ada kolom Nama Barang (kolom ke-2)
                     if (kolom.length >= 2) {
-                        // PERBAIKAN 3: Bersihkan tanda kutip ganda/tunggal jika Excel menambahkannya
                         const nama = kolom[1].replace(/['"]/g, '').trim();
                         const satuan = kolom[2] ? kolom[2].replace(/['"]/g, '').trim() : '';
+                        
+                        // Mengambil data Harga dari kolom ke-4 (index ke-3)
+                        let hargaBarang = 0;
+                        if (kolom.length >= 4 && kolom[3]) {
+                            let hargaBersih = kolom[3].replace(/['"]/g, '').replace(/[^0-9]/g, '');
+                            hargaBarang = parseInt(hargaBersih) || 0;
+                        }
+
+                        // BARU: Mengambil data Stok dari kolom ke-5 (index ke-4)
+                        let stokBarang = 0;
+                        if (kolom.length >= 5 && kolom[4]) {
+                            let stokBersih = kolom[4].replace(/['"]/g, '').replace(/[^0-9]/g, '');
+                            stokBarang = parseInt(stokBersih) || 0;
+                        }
                         
                         if (!nama) continue; // Jangan impor jika namanya kosong
 
@@ -632,10 +645,10 @@
                             id: idBaru.id,
                             barcode: idBaru.barcode,
                             nama: satuan ? `${nama} (${satuan})` : nama,
-                            harga: 0,
+                            harga: hargaBarang,
                             ikon: '📦',
                             kategori: 'Barang Impor', 
-                            stok: 0
+                            stok: stokBarang // Stok otomatis ditarik dari CSV
                         });
                         jumlahDiimpor++;
                     }
@@ -648,12 +661,12 @@
                 
                 // Tampilkan notifikasi hasil
                 if (jumlahDiimpor > 0) {
-                    showToast(`${jumlahDiimpor} barang berhasil diimpor!`, 'success');
+                    showToast(`${jumlahDiimpor} barang (beserta harga & stok) berhasil diimpor!`, 'success');
                 } else {
                     showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
                 }
                 
-                event.target.value = ''; // Reset uploader agar bisa upload file yang sama lagi jika perlu
+                event.target.value = ''; // Reset uploader
             };
             reader.readAsText(file);
         }
