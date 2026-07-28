@@ -366,18 +366,21 @@
         };
 
         // ==========================================
-        // KONEKSI SUPABASE AMAN (ANTI ERROR BLOKING)
-        // ==========================================
-        let supabaseClient = null;
-        try {
-            if (window.supabase) {
-                const SUPABASE_URL = 'postgresql://postgres.kidzsioyibtrxgplnodz:[ApelManis_01]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres';
-                const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (err) {
-            console.warn("Supabase tidak aktif, menggunakan memori lokal.", err);
-        }
+// KONEKSI SUPABASE AMAN & BENAR
+// ==========================================
+let supabaseClient = null;
+try {
+    if (window.supabase) {
+        // Menggunakan URL dan Publishable Key yang valid
+        const SUPABASE_URL = 'https://kidzsioyibtrxgplnodz.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
+        
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("Supabase berhasil terhubung dengan sukses!");
+    }
+} catch (err) {
+    console.warn("Gagal terhubung ke Supabase:", err);
+}
 
         // ==========================================
         // DATABASE AWAL & STATE APLIKASI
