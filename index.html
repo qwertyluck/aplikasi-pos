@@ -416,7 +416,10 @@ try {
             wadah.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         };
-
+        window.simpanKeStorage = function() {
+            localStorage.setItem('pos_keranjang', JSON.stringify(keranjang));
+            localStorage.setItem('pos_produk', JSON.stringify(daftarProduk));
+        };
         // ==========================================
         // KATALOG & FILTER KATEGORI
         // ==========================================
