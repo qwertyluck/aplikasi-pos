@@ -374,6 +374,7 @@ try {
         // Menggunakan URL dan Publishable Key yang valid
         const SUPABASE_URL = 'https://kidzsioyibtrxgplnodz.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("Supabase berhasil terhubung dengan sukses!");
@@ -381,7 +382,51 @@ try {
 } catch (err) {
     console.warn("Gagal terhubung ke Supabase:", err);
 }
+// Fungsi untuk menarik data dari Supabase saat aplikasi dibuka
+async function muatProdukDariSupabase() {
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*');
+            
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            products = data; // Masukkan data dari database ke array produk POS
+            if (typeof renderKatalog === 'function') renderKatalog();
+            if (typeof renderTabelAdmin === 'function') renderTabelAdmin();
+            console.log("Data berhasil disinkronkan dari Supabase!");
+        }
+    } catch (err) {
+        console.error("Gagal memuat produk dari Supabase:", err.message);
+    }
+}
 
+// Fungsi untuk mengirim data impor CSV langsung ke tabel products Supabase
+async function imporDataKeSupabase(arrayDataBaru) {
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .insert(arrayDataBaru);
+
+        if (error) {
+            console.error("Error Supabase:", error);
+            alert("Gagal menyimpan ke database Supabase: " + error.message);
+            return;
+        }
+
+        alert("Data berhasil diimpor dan disimpan permanen ke Supabase!");
+        muatProdukDariSupabase(); // Segarkan data di layar
+        
+    } catch (err) {
+        console.error("Kesalahan sistem:", err);
+    }
+}
+
+// Jalankan pengambilan data saat halaman pertama kali dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    muatProdukDariSupabase();
+});
         // ==========================================
         // DATABASE AWAL & STATE APLIKASI
         // ==========================================
