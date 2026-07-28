@@ -19,7 +19,6 @@
             --border: #E5E7EB;
         }
 
-        /* Mode Gelap (Dark Mode) */
         body.dark-mode {
             --bg: #111827;
             --card-bg: #1F2937;
@@ -105,7 +104,7 @@
         .product-price { color: var(--success); font-weight: bold; }
         .product-stock { font-size: 12px; margin-top: 5px; opacity: 0.8;}
 
-        /* Tabel Keranjang */
+        /* Tabel Umum */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;}
         th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); }
         th { font-weight: 600; background: var(--bg); }
@@ -116,13 +115,14 @@
             text-align: right; background: var(--bg); color: var(--text);
         }
 
-        /* Tombol & Aksi */
+        /* Tombol */
         button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; color: white; transition: 0.2s; }
         button:hover { opacity: 0.8; }
         .btn-delete { background-color: var(--danger); padding: 6px 10px; font-size: 12px; }
         .btn-checkout { background-color: var(--success); width: 100%; padding: 14px; margin-top: 15px; font-size: 16px;}
         .btn-hold { background-color: var(--warning); width: 100%; padding: 10px; margin-top: 10px; font-size: 14px;}
         .btn-reset { background-color: var(--danger); width: 100%; padding: 10px; margin-top: 10px; font-size: 14px;}
+        .btn-admin { background-color: var(--primary); color: white !important;}
 
         .summary-section { margin-top: 20px; padding-top: 15px; border-top: 2px dashed var(--border); }
         .grand-total { text-align: right; font-size: 22px; margin-top: 15px; color: var(--primary); }
@@ -137,17 +137,10 @@
         
         /* Modal Style */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-box { background: var(--card-bg); width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
+        .modal-box { background: var(--card-bg); width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; max-height: 85vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
         .close-modal { color: var(--danger); font-size: 20px; cursor: pointer; }
 
-        /* Responsive Mobile / Tablet */
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .panel { width: 100%; box-sizing: border-box; }
-        }
-
-        /* Pengaturan Cetak (Print) */
         @media print {
             body { background: white; padding: 0; color: black; font-family: monospace;}
             .top-navbar, .tools-header, #toast-container, .modal-overlay, .nav-actions { display: none !important; }
@@ -164,6 +157,7 @@
     <div class="top-navbar">
         <h2><i class="fa-solid fa-shop"></i> Kasir POS Modern</h2>
         <div class="nav-actions">
+            <button class="btn-admin" onclick="bukaModalAdmin()"><i class="fa-solid fa-boxes-stacked"></i> Kelola Produk</button>
             <button onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Tema</button>
             <button onclick="bukaModalTahan()"><i class="fa-regular fa-clock"></i> Pesanan Tertunda</button>
             <button onclick="bukaModalDashboard()"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
@@ -197,22 +191,12 @@
             
             <div class="summary-section">
                 <div class="input-group">
-                    <span><i class="fa-solid fa-users"></i> No. Member:</span>
-                    <input type="text" id="input-member" placeholder="Opsional (08123)" onkeyup="kalkulasiTotal()">
-                </div>
-                <small id="info-member" style="color: var(--success); display:block; text-align:right; margin-bottom:10px;"></small>
-
-                <div class="input-group">
                     <span>Subtotal:</span>
                     <span id="subtotal-harga">Rp 0</span>
                 </div>
                 <div class="input-group">
                     <span>Diskon (Rp):</span>
                     <input type="number" id="input-diskon" value="0" min="0" onkeyup="kalkulasiTotal()" onchange="kalkulasiTotal()">
-                </div>
-                <div class="input-group">
-                    <span>Pajak PPN (%):</span>
-                    <input type="number" id="input-pajak" value="0" min="0" onkeyup="kalkulasiTotal()" onchange="kalkulasiTotal()">
                 </div>
                 
                 <div class="grand-total">
@@ -226,7 +210,6 @@
                     <select id="metode-bayar" onchange="ubahMetodeBayar()">
                         <option value="Tunai">Tunai</option>
                         <option value="QRIS">QRIS / e-Wallet</option>
-                        <option value="Kartu">Kartu Kredit/Debit</option>
                     </select>
                 </div>
 
@@ -248,22 +231,11 @@
             </div>
 
             <button class="btn-checkout" onclick="selesaikanTransaksi()"><i class="fa-solid fa-check"></i> Selesaikan & Cetak</button>
-            <button class="btn-hold" onclick="tahanPesanan()"><i class="fa-regular fa-clock"></i> Simpan / Tahan Pesanan</button>
             <button class="btn-reset" onclick="kosongkanKeranjang(false)"><i class="fa-solid fa-trash"></i> Batalkan Transaksi</button>
         </div>
     </div>
 
     <div id="toast-container"></div>
-
-    <div class="modal-overlay" id="modal-tahan">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 style="margin: 0;">Daftar Pesanan Tertunda</h3>
-                <i class="fa-solid fa-xmark close-modal" onclick="tutupModal('modal-tahan')"></i>
-            </div>
-            <div id="list-tahanan"></div>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="modal-dashboard">
         <div class="modal-box">
@@ -279,35 +251,64 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-admin">
+        <div class="modal-box" style="max-width: 800px; width: 95%;">
+            <div class="modal-header">
+                <h3 style="margin: 0;"><i class="fa-solid fa-boxes-stacked"></i> Kelola Produk & Stok</h3>
+                <i class="fa-solid fa-xmark close-modal" onclick="tutupModal('modal-admin')"></i>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                <div style="flex: 1; min-width: 250px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);">
+                    <h4><i class="fa-solid fa-file-csv"></i> Impor dari CSV</h4>
+                    <p style="font-size: 12px; color: gray; margin-bottom: 10px;">Format wajib (Pemisah Titik Koma):<br><code>No;Nama Barang;Satuan</code></p>
+                    <input type="file" id="file-csv" accept=".csv" onchange="imporDataCSV(event)" style="font-size: 12px;">
+                </div>
+                
+                <div style="flex: 2; min-width: 300px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);">
+                    <h4 style="margin-top:0;"><i class="fa-solid fa-plus"></i> Tambah Produk Baru</h4>
+                    <div class="input-group" style="margin-top: 5px;">
+                        <input type="text" id="add-nama" placeholder="Nama Produk" style="width: 100%; text-align: left;">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="input-group" style="flex:1;">
+                            <input type="number" id="add-harga" placeholder="Harga Jual" style="width: 100%;">
+                        </div>
+                        <div class="input-group" style="flex:1;">
+                            <input type="number" id="add-stok" placeholder="Stok Awal" style="width: 100%;">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="add-kategori" placeholder="Kategori (Misal: Bahan Bangunan)" style="width: 100%; text-align: left;">
+                    </div>
+                    <button style="background: var(--primary); padding: 10px; width: 100%; margin-top: 15px;" onclick="tambahProdukManual()">Simpan Produk Baru</button>
+                </div>
+            </div>
+
+            <h4>Daftar Barang (Ubah Harga & Stok disini)</h4>
+            <div style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+                <table>
+                    <thead style="position: sticky; top: 0; z-index: 10;">
+                        <tr>
+                            <th>Barcode</th>
+                            <th>Nama Barang</th>
+                            <th>Harga (Rp)</th>
+                            <th>Stok</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-admin-produk"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        // --- 1. SETUP DATABASE & BARCODE ---
+        // --- 1. SETUP DATABASE AWAL (Hanya Terpakai jika Local Storage Kosong) ---
         const databaseAwal = [
-            // --- KATEGORI: BAHAN BANGUNAN ---
-            { id: 1, barcode: '101', nama: 'Semen (Sak)', harga: 65000, ikon: '🧱', kategori: 'Bahan Bangunan', stok: 10 },
-            { id: 2, barcode: '102', nama: 'Semen Biasa (Kilo)', harga: 3000, ikon: '🧱', kategori: 'Bahan Bangunan', stok: 50 },
-            { id: 3, barcode: '103', nama: 'Kaca Meja (Lembar)', harga: 150000, ikon: '🪟', kategori: 'Bahan Bangunan', stok: 5 },
-            { id: 4, barcode: '104', nama: 'Cat Matex (Kaleng)', harga: 125000, ikon: '🎨', kategori: 'Bahan Bangunan', stok: 10 },
-
-            // --- KATEGORI: KONSUMSI ---
-            { id: 5, barcode: '201', nama: 'Air Isi Ulang (Galon)', harga: 6000, ikon: '💧', kategori: 'Konsumsi', stok: 15 },
-            { id: 6, barcode: '202', nama: 'Air Mineral Kemasan (Dus)', harga: 35000, ikon: '🚰', kategori: 'Konsumsi', stok: 5 },
-            { id: 7, barcode: '203', nama: 'Daun Teh Celup (Pcs)', harga: 6500, ikon: '🍵', kategori: 'Konsumsi', stok: 20 },
-            { id: 8, barcode: '204', nama: 'Papper Cup (Pcs)', harga: 500, ikon: '🥤', kategori: 'Konsumsi', stok: 100 },
-
-            // --- KATEGORI: ATK (ALAT TULIS KANTOR) ---
-            { id: 9, barcode: '301', nama: 'Pena Pilot Ball Liner', harga: 30000, ikon: '🖊️', kategori: 'ATK', stok: 1 },
-            { id: 10, barcode: '302', nama: 'Spidol Snowman (Buah)', harga: 8000, ikon: '🖍️', kategori: 'ATK', stok: 1 },
-            { id: 11, barcode: '303', nama: 'Spidol Permanen (Buah)', harga: 9500, ikon: '🖋️', kategori: 'ATK', stok: 2 },
-            { id: 12, barcode: '304', nama: 'Binder Clip 300 (Dos)', harga: 12000, ikon: '📎', kategori: 'ATK', stok: 10 },
-            { id: 13, barcode: '305', nama: 'Penghapus Pensil (Buah)', harga: 3000, ikon: '🧽', kategori: 'ATK', stok: 1 },
-            { id: 14, barcode: '306', nama: 'Buku Tulis (Buah)', harga: 4000, ikon: '📓', kategori: 'ATK', stok: 20 },
-            { id: 15, barcode: '307', nama: 'Kwitansi Kecil (Buah)', harga: 3000, ikon: '🧾', kategori: 'ATK', stok: 2 },
-            { id: 16, barcode: '308', nama: 'Cutter Besar (Buah)', harga: 15000, ikon: '🔪', kategori: 'ATK', stok: 2 },
-            { id: 17, barcode: '309', nama: 'Lem Kertas (Buah)', harga: 4500, ikon: '🧴', kategori: 'ATK', stok: 1 },
-            { id: 18, barcode: '310', nama: 'Lakban Besar (Buah)', harga: 12500, ikon: '📼', kategori: 'ATK', stok: 3 },
-            { id: 19, barcode: '311', nama: 'Isi Staples Sedang (Dus)', harga: 4000, ikon: '🖇️', kategori: 'ATK', stok: 1 },
-            { id: 20, barcode: '312', nama: 'Kertas HVS Warna (Rim)', harga: 55000, ikon: '📄', kategori: 'ATK', stok: 2 },
-            { id: 21, barcode: '313', nama: 'HVS Putih (Dus)', harga: 230000, ikon: '📄', kategori: 'ATK', stok: 1 }
+            { id: 1, barcode: '0001', nama: 'Semen (Sak)', harga: 65000, ikon: '🧱', kategori: 'Bahan Bangunan', stok: 10 },
+            { id: 2, barcode: '0002', nama: 'Cat Matex (Kaleng)', harga: 125000, ikon: '🎨', kategori: 'Bahan Bangunan', stok: 10 }
         ];
 
         // --- 2. MANAJEMEN STATE LOCAL STORAGE ---
@@ -318,10 +319,9 @@
         
         let kategoriAktif = 'Semua';
         let grandTotal = 0; 
-        
-        // Memuat tema gelap jika sebelumnya dipilih
-        if(localStorage.getItem('pos_dark_mode') === 'true') document.body.classList.add('dark-mode');
 
+        // Memuat tema gelap 
+        if(localStorage.getItem('pos_dark_mode') === 'true') document.body.classList.add('dark-mode');
         const formatRupiah = (angka) => new Intl.NumberFormat('id-ID').format(angka);
 
         // --- FITUR TOAST NOTIFICATION ---
@@ -343,30 +343,7 @@
             showToast(isDark ? "Mode Gelap diaktifkan" : "Mode Terang diaktifkan", 'success');
         }
 
-        // --- FITUR BARCODE SCANNER ---
-        let barcodeBuffer = "";
-        let barcodeTimer;
-        document.addEventListener("keydown", function(e) {
-            // Cegah membaca ketikan jika kasir sedang mengetik di dalam kolom input/teks
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-
-            if (e.key === "Enter") {
-                if (barcodeBuffer !== "") {
-                    const produk = daftarProduk.find(p => p.barcode === barcodeBuffer);
-                    if (produk) tambahKeKeranjang(produk.id);
-                    else showToast(`Barcode ${barcodeBuffer} tidak ditemukan di sistem!`, 'error');
-                    barcodeBuffer = "";
-                }
-            } else {
-                if (e.key.length === 1) { // Hanya tangkap karakter
-                    barcodeBuffer += e.key;
-                    clearTimeout(barcodeTimer);
-                    barcodeTimer = setTimeout(() => barcodeBuffer = "", 300); // Batas kecepatan ngetik
-                }
-            }
-        });
-
-        // --- RENDER KATALOG & KATEGORI ---
+        // --- LOGIKA KASIR (PENCARIAN, KERANJANG) ---
         function renderKategori() {
             const container = document.getElementById('kategori-container');
             const kategoriUnik = ['Semua', ...new Set(daftarProduk.map(p => p.kategori))];
@@ -409,40 +386,32 @@
             });
         }
 
-        // --- LOGIKA KERANJANG BELANJA ---
         function tambahKeKeranjang(idProduk) {
             const produk = daftarProduk.find(p => p.id === idProduk);
             const itemDiKeranjang = keranjang.find(item => item.id === idProduk);
             const qtySaatIni = itemDiKeranjang ? itemDiKeranjang.qty : 0;
 
-            if (qtySaatIni + 1 > produk.stok) {
-                return showToast(`Gagal! Stok ${produk.nama} tersisa ${produk.stok}.`, 'error');
-            }
+            if (qtySaatIni + 1 > produk.stok) return showToast(`Gagal! Stok ${produk.nama} tersisa ${produk.stok}.`, 'error');
 
             if (itemDiKeranjang) itemDiKeranjang.qty += 1;
             else keranjang.push({ id: produk.id, nama: produk.nama, harga: produk.harga, qty: 1 });
             
-            simpanKeStorage();
-            perbaruiTampilanKeranjang();
+            simpanKeStorage(); perbaruiTampilanKeranjang();
         }
 
-        function hapusItem(idProduk) {
+        function hapusItemKeranjang(idProduk) {
             keranjang = keranjang.filter(item => item.id !== idProduk);
-            simpanKeStorage();
-            perbaruiTampilanKeranjang();
+            simpanKeStorage(); perbaruiTampilanKeranjang();
         }
 
         function kosongkanKeranjang(isCheckout = false) {
             if(keranjang.length === 0) return;
-            if(isCheckout || confirm("Apakah Anda yakin ingin mengosongkan keranjang?")) {
+            if(isCheckout || confirm("Batalkan Transaksi ini?")) {
                 keranjang = [];
                 document.getElementById('input-diskon').value = 0;
-                document.getElementById('input-pajak').value = 0;
                 document.getElementById('input-bayar').value = '';
-                document.getElementById('input-member').value = '';
-                simpanKeStorage();
-                perbaruiTampilanKeranjang();
-                if(!isCheckout) showToast("Keranjang berhasil dikosongkan.", "success");
+                simpanKeStorage(); perbaruiTampilanKeranjang();
+                if(!isCheckout) showToast("Keranjang dibatalkan.", "success");
             }
         }
 
@@ -454,13 +423,13 @@
             keranjang.forEach(item => {
                 const totalItem = item.harga * item.qty;
                 subtotal += totalItem;
-
-                const baris = tabelBody.insertRow();
-                baris.innerHTML = `
-                    <td>${item.nama}</td>
-                    <td>${item.qty}</td>
-                    <td>Rp ${formatRupiah(totalItem)}</td>
-                    <td><button class="btn-delete" onclick="hapusItem(${item.id})"><i class="fa-solid fa-trash"></i></button></td>
+                tabelBody.innerHTML += `
+                    <tr>
+                        <td>${item.nama}</td>
+                        <td>${item.qty}</td>
+                        <td>Rp ${formatRupiah(totalItem)}</td>
+                        <td><button class="btn-delete" onclick="hapusItemKeranjang(${item.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
                 `;
             });
 
@@ -469,49 +438,21 @@
             kalkulasiTotal(subtotal);
         }
 
-        // --- FITUR MEMBER, PAJAK & KALKULASI ---
         function kalkulasiTotal(sub = null) {
             let subtotal = sub !== null ? sub : keranjang.reduce((sum, item) => sum + (item.harga * item.qty), 0);
-            
-            // Logika Diskon Loyalitas / Member
-            const noMember = document.getElementById('input-member').value;
-            let diskonMember = 0;
-            const infoMember = document.getElementById('info-member');
-            
-            // Simulasi database member sederhana
-            if(noMember === "08123") {
-                diskonMember = subtotal * 0.10; // Diskon 10%
-                infoMember.innerText = `✅ Member Ditemukan! Diskon Loyalitas: Rp ${formatRupiah(diskonMember)}`;
-            } else {
-                infoMember.innerText = '';
-            }
-
             const diskonManual = parseFloat(document.getElementById('input-diskon').value) || 0;
-            const pajakPersen = parseFloat(document.getElementById('input-pajak').value) || 0;
 
-            let totalSetelahDiskon = subtotal - diskonManual - diskonMember;
-            if (totalSetelahDiskon < 0) totalSetelahDiskon = 0; 
-
-            const nominalPajak = totalSetelahDiskon * (pajakPersen / 100);
-            grandTotal = totalSetelahDiskon + nominalPajak;
+            grandTotal = subtotal - diskonManual;
+            if (grandTotal < 0) grandTotal = 0; 
 
             document.getElementById('total-akhir').innerText = `Rp ${formatRupiah(grandTotal)}`;
             hitungKembalian(); 
         }
 
-        // --- FITUR METODE PEMBAYARAN ---
         function ubahMetodeBayar() {
             const metode = document.getElementById('metode-bayar').value;
-            const areaTunai = document.getElementById('area-tunai');
-            const areaQris = document.getElementById('area-qris');
-            
-            if(metode === 'Tunai') {
-                areaTunai.style.display = 'block';
-                areaQris.style.display = 'none';
-            } else {
-                areaTunai.style.display = 'none';
-                areaQris.style.display = 'block';
-            }
+            document.getElementById('area-tunai').style.display = metode === 'Tunai' ? 'block' : 'none';
+            document.getElementById('area-qris').style.display = metode === 'Tunai' ? 'none' : 'block';
         }
 
         function hitungKembalian() {
@@ -528,117 +469,194 @@
             }
         }
 
-        // --- TRANSAKSI & CETAK ---
         function selesaikanTransaksi() {
             if(keranjang.length === 0) return showToast("Keranjang masih kosong!", "error");
             
             const metode = document.getElementById('metode-bayar').value;
-            
             if(metode === 'Tunai') {
                 const bayar = parseFloat(document.getElementById('input-bayar').value) || 0;
-                if (bayar < grandTotal) return showToast("Gagal! Uang pembayaran tunai tidak mencukupi.", "error");
+                if (bayar < grandTotal) return showToast("Uang pembayaran kurang!", "error");
             }
 
-            // Kurangi stok
             keranjang.forEach(itemBeli => {
                 const produkAsli = daftarProduk.find(p => p.id === itemBeli.id);
                 if (produkAsli) produkAsli.stok -= itemBeli.qty;
             });
 
-            // Simpan Data Penjualan ke Riwayat (Analytics)
-            riwayatPenjualan.push({
-                waktu: new Date().toISOString(),
-                total: grandTotal,
-                metode: metode,
-                jumlahItem: keranjang.length
-            });
+            riwayatPenjualan.push({ waktu: new Date().toISOString(), total: grandTotal, metode: metode, jumlahItem: keranjang.length });
             localStorage.setItem('pos_riwayat', JSON.stringify(riwayatPenjualan));
 
             showToast("Transaksi Berhasil!", "success");
-            window.print(); // Mode Cetak
-
-            // Reset
-            simpanKeStorage();
-            kosongkanKeranjang(true);
-            renderKatalog(); 
+            window.print();
+            simpanKeStorage(); kosongkanKeranjang(true); renderKatalog(); renderTabelAdmin();
         }
 
-        // --- FITUR SIMPAN SEMENTARA (HOLD ORDER) ---
-        function tahanPesanan() {
-            if(keranjang.length === 0) return showToast("Tidak ada pesanan untuk ditahan.", "error");
-            
-            const nama = prompt("Masukkan nama pelanggan/meja untuk pesanan ini:");
-            if(!nama) return;
+        // =========================================================
+        // --- 3. FITUR ADMIN (KELOLA STOK, TAMBAH PRODUK, CSV) ---
+        // =========================================================
 
-            pesananDitahan.push({
-                id: Date.now(),
-                pelanggan: nama,
-                waktu: new Date().toLocaleString('id-ID'),
-                items: [...keranjang]
+        function bukaModalAdmin() {
+            renderTabelAdmin();
+            document.getElementById('modal-admin').style.display = 'flex';
+        }
+
+        // Generate Kode Item / Barcode Berurutan
+        function dapatkanBarcodeBaru() {
+            const maxId = daftarProduk.length > 0 ? Math.max(...daftarProduk.map(p => p.id)) : 0;
+            const newId = maxId + 1;
+            // Jadikan format 4 digit, contoh: 0001, 0045, 0120
+            const newBarcode = String(newId).padStart(4, '0');
+            return { id: newId, barcode: newBarcode };
+        }
+
+        // Render Data Ke Tabel Admin (Live Edit)
+        function renderTabelAdmin() {
+            const tbody = document.getElementById('tabel-admin-produk');
+            tbody.innerHTML = '';
+            
+            daftarProduk.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span style="background:var(--bg); padding:3px 8px; border-radius:4px; font-family:monospace;">${p.barcode}</span></td>
+                        <td>${p.nama}</td>
+                        <td>
+                            <input type="number" value="${p.harga}" onchange="ubahDataProduk(${p.id}, 'harga', this.value)" style="width: 80px; padding: 4px; text-align:right;">
+                        </td>
+                        <td>
+                            <input type="number" value="${p.stok}" onchange="ubahDataProduk(${p.id}, 'stok', this.value)" style="width: 60px; padding: 4px; text-align:right;">
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="hapusProdukDariDatabase(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
             });
-            
-            localStorage.setItem('pos_hold', JSON.stringify(pesananDitahan));
-            kosongkanKeranjang(true);
-            showToast(`Pesanan a.n ${nama} berhasil ditahan.`, "success");
         }
 
-        function bukaModalTahan() {
-            const modal = document.getElementById('modal-tahan');
-            const list = document.getElementById('list-tahanan');
-            list.innerHTML = '';
-
-            if(pesananDitahan.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:gray;">Tidak ada pesanan tertunda.</p>';
-            } else {
-                pesananDitahan.forEach((pesanan, idx) => {
-                    list.innerHTML += `
-                        <div style="border: 1px solid var(--border); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong><i class="fa-solid fa-user"></i> ${pesanan.pelanggan}</strong><br>
-                                <small style="color:gray;">${pesanan.waktu} | ${pesanan.items.length} Barang</small>
-                            </div>
-                            <button style="background: var(--primary); padding: 8px 12px; font-size: 12px;" onclick="lanjutkanPesanan(${idx})">Lanjutkan</button>
-                        </div>
-                    `;
-                });
+        // Update nilai stok / harga langsung saat Admin mengubah kotak angka
+        function ubahDataProduk(idProduk, field, newValue) {
+            const produk = daftarProduk.find(p => p.id === idProduk);
+            if (produk) {
+                produk[field] = parseInt(newValue) || 0;
+                simpanKeStorage();
+                renderKatalog(); 
+                showToast(`${field.toUpperCase()} berhasil diperbarui!`, 'success');
             }
-            modal.style.display = 'flex';
         }
 
-        function lanjutkanPesanan(idx) {
-            if (keranjang.length > 0 && !confirm("Keranjang saat ini belum kosong. Timpa data keranjang?")) return;
+        // Tambah Produk Manual lewat Form
+        function tambahProdukManual() {
+            const nama = document.getElementById('add-nama').value;
+            const harga = parseInt(document.getElementById('add-harga').value) || 0;
+            const stok = parseInt(document.getElementById('add-stok').value) || 0;
+            const kategori = document.getElementById('add-kategori').value || 'Lainnya';
+
+            if (!nama) return showToast('Nama produk wajib diisi!', 'error');
+
+            const idBaru = dapatkanBarcodeBaru();
             
-            keranjang = pesananDitahan[idx].items;
-            pesananDitahan.splice(idx, 1); // Hapus dari memori tahanan
-            
-            localStorage.setItem('pos_hold', JSON.stringify(pesananDitahan));
+            daftarProduk.push({
+                id: idBaru.id,
+                barcode: idBaru.barcode,
+                nama: nama,
+                harga: harga,
+                ikon: '📦',
+                kategori: kategori,
+                stok: stok
+            });
+
             simpanKeStorage();
-            perbaruiTampilanKeranjang();
+            renderKategori();
+            renderKatalog();
+            renderTabelAdmin();
+            showToast('Produk Baru Berhasil Ditambahkan!', 'success');
             
-            tutupModal('modal-tahan');
-            showToast("Pesanan dilanjutkan ke keranjang.", "success");
+            // Bersihkan form
+            document.getElementById('add-nama').value = '';
+            document.getElementById('add-harga').value = '';
+            document.getElementById('add-stok').value = '';
+            document.getElementById('add-kategori').value = '';
         }
 
-        // --- DASHBOARD (ANALYTICS) ---
+        function hapusProdukDariDatabase(idProduk) {
+            if(confirm("Yakin ingin menghapus barang ini secara permanen dari database?")) {
+                daftarProduk = daftarProduk.filter(p => p.id !== idProduk);
+                // Cek keranjang apakah produk sedang dipakai
+                keranjang = keranjang.filter(k => k.id !== idProduk); 
+
+                simpanKeStorage();
+                renderKategori();
+                renderKatalog();
+                perbaruiTampilanKeranjang();
+                renderTabelAdmin();
+                showToast('Produk Dihapus!', 'success');
+            }
+        }
+
+        // Impor Daftar Barang dari CSV
+        function imporDataCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                // Membaca per baris dari file
+                const lines = text.split(/\r?\n/);
+                let jumlahDiimpor = 0;
+
+                // Mulai dari i=1 untuk melewati Baris Pertama (Header)
+                for (let i = 1; i < lines.length; i++) { 
+                    if (!lines[i].trim()) continue; // Jika baris kosong, skip
+                    
+                    const kolom = lines[i].split(';'); // Pemisah dari dokumen anda adalah ";"
+                    
+                    if (kolom.length >= 2) {
+                        const nama = kolom[1].trim();
+                        const satuan = kolom[2] ? kolom[2].trim() : '';
+                        
+                        const idBaru = dapatkanBarcodeBaru();
+                        
+                        daftarProduk.push({
+                            id: idBaru.id,
+                            barcode: idBaru.barcode, // Barcode digenerate sesuai urutan
+                            nama: satuan ? `${nama} (${satuan})` : nama, // Menggabungkan Nama dan Satuan
+                            harga: 0, // Karena CSV tidak ada harga, diset Default 0
+                            ikon: '📦',
+                            kategori: 'Barang Impor', 
+                            stok: 0 // Stok dikosongkan dahulu
+                        });
+                        jumlahDiimpor++;
+                    }
+                }
+
+                simpanKeStorage();
+                renderKategori();
+                renderKatalog();
+                renderTabelAdmin();
+                showToast(`${jumlahDiimpor} barang dari CSV berhasil masuk!`, 'success');
+                event.target.value = ''; // Reset uploader file
+            };
+            reader.readAsText(file);
+        }
+
+        // =========================================================
+
         function bukaModalDashboard() {
             const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + trx.total, 0);
-            const totalTransaksi = riwayatPenjualan.length;
-
             document.getElementById('dash-pendapatan').innerText = `Rp ${formatRupiah(totalPendapatan)}`;
-            document.getElementById('dash-trx').innerText = totalTransaksi;
+            document.getElementById('dash-trx').innerText = riwayatPenjualan.length;
             document.getElementById('modal-dashboard').style.display = 'flex';
         }
 
-        function tutupModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
+        function tutupModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function simpanKeStorage() {
             localStorage.setItem('pos_keranjang', JSON.stringify(keranjang));
             localStorage.setItem('pos_produk', JSON.stringify(daftarProduk));
         }
 
-        // Inisialisasi awal
+        // Inisialisasi awal UI
         renderKategori();
         renderKatalog();
         perbaruiTampilanKeranjang();
