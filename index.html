@@ -366,67 +366,49 @@
         };
 
         // ==========================================
-// KONEKSI SUPABASE AMAN & BENAR
-// ==========================================
-let supabaseClient = null;
-try {
-    if (window.supabase) {
-        // Menggunakan URL dan Publishable Key yang valid
-        const SUPABASE_URL = 'https://kidzsioyibtrxgplnodz.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("Supabase berhasil terhubung dengan sukses!");
-    }
-} catch (err) {
-    console.warn("Gagal terhubung ke Supabase:", err);
-}
-// Fungsi untuk menarik data dari Supabase saat aplikasi dibuka
-async function muatProdukDariSupabase() {
-    try {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*');
-            
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-            products = data; // Masukkan data dari database ke array produk POS
-            if (typeof renderKatalog === 'function') renderKatalog();
-            if (typeof renderTabelAdmin === 'function') renderTabelAdmin();
-            console.log("Data berhasil disinkronkan dari Supabase!");
-        }
-    } catch (err) {
-        console.error("Gagal memuat produk dari Supabase:", err.message);
-    }
-}
-
-// Fungsi untuk mengirim data impor CSV langsung ke tabel products Supabase
-async function imporDataKeSupabase(arrayDataBaru) {
-    try {
-        const { data, error } = await supabase
-            .from('products')
-            .insert(arrayDataBaru);
-
-        if (error) {
-            console.error("Error Supabase:", error);
-            alert("Gagal menyimpan ke database Supabase: " + error.message);
-            return;
+        // KONEKSI SUPABASE AMAN & SINKRONISASI LENGKAP
+        // ==========================================
+        let supabaseClient = null;
+        try {
+            if (window.supabase) {
+                const SUPABASE_URL = 'https://kidzsioyibtrxgplnodz.supabase.co';
+                const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
+                
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase berhasil terhubung dengan sukses!");
+            }
+        } catch (err) {
+            console.warn("Gagal terhubung ke Supabase:", err);
         }
 
-        alert("Data berhasil diimpor dan disimpan permanen ke Supabase!");
-        muatProdukDariSupabase(); // Segarkan data di layar
-        
-    } catch (err) {
-        console.error("Kesalahan sistem:", err);
-    }
-}
+        // Fungsi untuk menarik data real-time dari Supabase ke aplikasi POS
+        async function muatProdukDariSupabase() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .select('*');
+                    
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    daftarProduk = data; // Memperbarui variabel produk utama POS dengan data cloud
+                    window.simpanKeStorage();
+                    if (typeof renderKategori === 'function') renderKategori();
+                    if (typeof renderKatalog === 'function') renderKatalog();
+                    if (typeof renderTabelAdmin === 'function') renderTabelAdmin();
+                    console.log("Data berhasil disinkronkan dari Supabase!");
+                }
+            } catch (err) {
+                console.error("Gagal memuat produk dari Supabase:", err.message);
+            }
+        }
 
-// Jalankan pengambilan data saat halaman pertama kali dimuat
-document.addEventListener('DOMContentLoaded', () => {
-    muatProdukDariSupabase();
-});
+        // Jalankan pengambilan data saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            muatProdukDariSupabase();
+        });
+
         // ==========================================
         // DATABASE AWAL & STATE APLIKASI
         // ==========================================
@@ -465,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('pos_keranjang', JSON.stringify(keranjang));
             localStorage.setItem('pos_produk', JSON.stringify(daftarProduk));
         };
+
         // ==========================================
         // KATALOG & FILTER KATEGORI
         // ==========================================
@@ -493,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const produkTampil = daftarProduk.filter(p => {
                 const cocokKategori = kategoriAktif === 'Semua' || p.kategori === kategoriAktif;
-                const cocokKeyword = p.nama.toLowerCase().includes(keyword) || p.barcode.includes(keyword);
+                const cocokKeyword = p.nama.toLowerCase().includes(keyword) || (p.barcode && p.barcode.toLowerCase().includes(keyword));
                 return cocokKategori && cocokKeyword;
             });
 
@@ -523,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="product-name">${produk.nama}</div>
                     <div class="product-price">Rp ${formatRupiah(produk.harga)}</div>
                     <div class="product-stock">${isHabis ? '❌ Stok Habis' : 'Stok: ' + produk.stok}</div>
-                    <small style="font-size:10px; color:gray;">[${produk.barcode}]</small>
+                    <small style="font-size:10px; color:gray;">[${produk.barcode || '-'}]</small>
                 `;
                 wadahKatalog.appendChild(card);
             });
@@ -692,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
             daftarProduk.forEach(p => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><span style="background:var(--bg); padding:3px 8px; border-radius:4px; font-family:monospace;">${p.barcode}</span></td>
+                        <td><span style="background:var(--bg); padding:3px 8px; border-radius:4px; font-family:monospace;">${p.barcode || '-'}</span></td>
                         <td>${p.nama}</td>
                         <td>
                             <input type="number" value="${p.harga}" onchange="window.ubahDataProduk(${p.id}, 'harga', this.value)" style="width: 80px; padding: 4px; text-align:right;">
@@ -718,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        window.tambahProdukManual = function() {
+        window.tambahProdukManual = async function() {
             const nama = document.getElementById('add-nama').value;
             const harga = parseInt(document.getElementById('add-harga').value) || 0;
             const stok = parseInt(document.getElementById('add-stok').value) || 0;
@@ -727,8 +710,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!nama) return window.showToast('Nama produk wajib diisi!', 'error');
 
             const idBaru = window.dapatkanBarcodeBaru();
+            const produkBaru = { id: idBaru.id, barcode: idBaru.barcode, nama: nama, harga: harga, ikon: '📦', kategori: kategori, stok: stok };
             
-            daftarProduk.push({ id: idBaru.id, barcode: idBaru.barcode, nama: nama, harga: harga, ikon: '📦', kategori: kategori, stok: stok });
+            daftarProduk.push(produkBaru);
+
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('products').insert([produkBaru]);
+                if (error) console.error("Gagal sinkron tambah manual ke Supabase:", error);
+            }
 
             window.simpanKeStorage();
             window.renderKategori();
@@ -742,10 +731,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('add-kategori').value = '';
         };
 
-        window.hapusProdukDariDatabase = function(idProduk) {
+        window.hapusProdukDariDatabase = async function(idProduk) {
             if(confirm("Yakin ingin menghapus barang ini secara permanen?")) {
+                const produkDihapus = daftarProduk.find(p => p.id === idProduk);
                 daftarProduk = daftarProduk.filter(p => p.id !== idProduk);
                 keranjang = keranjang.filter(k => k.id !== idProduk); 
+
+                if (supabaseClient && produkDihapus) {
+                    await supabaseClient.from('products').delete().eq('barcode', produkDihapus.barcode);
+                }
+
                 window.simpanKeStorage(); 
                 window.renderKategori(); 
                 window.renderKatalog(); 
@@ -755,12 +750,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        window.hapusSemuaBarang = function() {
+        window.hapusSemuaBarang = async function() {
             if (daftarProduk.length === 0) return window.showToast("Daftar barang sudah kosong!", "error");
             if (confirm("PERINGATAN: Yakin ingin menghapus SELURUH daftar barang? Tindakan ini tidak dapat dibatalkan.")) {
                 daftarProduk = [];
                 keranjang = []; 
                 currentPage = 1;
+
+                if (supabaseClient) {
+                    await supabaseClient.from('products').delete().neq('id', 0); // Hapus semua baris di Supabase
+                }
+
                 window.simpanKeStorage(); 
                 window.renderKategori(); 
                 window.renderKatalog(); 
@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-window.imporDataCSV = async function(event) {
+        window.imporDataCSV = async function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -803,6 +803,7 @@ window.imporDataCSV = async function(event) {
 
                         const idBaru = window.dapatkanBarcodeBaru();
                         const itemProduk = { 
+                            id: idBaru.id,
                             barcode: idBaru.barcode, 
                             nama: satuan ? `${nama} (${satuan})` : nama, 
                             harga: hargaBarang, 
@@ -812,7 +813,7 @@ window.imporDataCSV = async function(event) {
                         };
 
                         dataBaruBaris.push(itemProduk);
-                        daftarProduk.push({ id: idBaru.id, ...itemProduk });
+                        daftarProduk.push(itemProduk);
                     }
                 }
 
@@ -841,6 +842,7 @@ window.imporDataCSV = async function(event) {
             };
             reader.readAsText(file);
         };
+
         // ==========================================
         // INISIALISASI UTAMA
         // ==========================================
