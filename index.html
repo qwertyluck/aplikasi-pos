@@ -314,7 +314,13 @@
                </div>
             </div>
 
-            <h4>Daftar Barang (Ubah Harga & Stok disini)</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0;">Daftar Barang (Ubah Harga & Stok disini)</h4>
+                <button class="btn-delete" onclick="hapusSemuaBarang()" style="padding: 6px 12px; font-size: 13px;">
+                    <i class="fa-solid fa-trash-alt"></i> Hapus Semua Barang
+                </button>
+            </div>
+
             <div style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
                 <table>
                    <thead style="position: sticky; top: 0; z-index: 10;">
@@ -350,7 +356,7 @@
         
         // Variabel Paginasi & Pencarian Berkecepatan Tinggi
         let currentPage = 1;
-        const itemsPerPage = 16; // Tampilkan 16 produk per halaman untuk menjaga performa ringan
+        const itemsPerPage = 16; 
         let searchTimeout = null;
 
         // Memuat tema gelap 
@@ -387,7 +393,7 @@
                 btn.innerText = kat;
                 btn.onclick = () => { 
                     kategoriAktif = kat; 
-                    currentPage = 1; // Reset ke halaman 1 saat ganti kategori
+                    currentPage = 1; 
                     renderKategori(); 
                     renderKatalog(); 
                 };
@@ -400,21 +406,18 @@
             const keyword = document.getElementById('search-bar').value.toLowerCase();
             wadahKatalog.innerHTML = '';
 
-            // Filter data berdasarkan kategori & kata kunci pencarian
             const produkTampil = daftarProduk.filter(p => {
                 const cocokKategori = kategoriAktif === 'Semua' || p.kategori === kategoriAktif;
                 const cocokKeyword = p.nama.toLowerCase().includes(keyword) || p.barcode.includes(keyword);
                 return cocokKategori && cocokKeyword;
             });
 
-            // Hitung total halaman untuk paginasi
             const totalPages = Math.ceil(produkTampil.length / itemsPerPage);
             if (currentPage > totalPages && totalPages > 0) {
                 currentPage = totalPages;
             }
             if (currentPage < 1) currentPage = 1;
 
-            // Potong data array sesuai halaman aktif (Slice) agar DOM tidak berat
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const currentProducts = produkTampil.slice(startIndex, endIndex);
@@ -425,7 +428,6 @@
                 return;
             }
 
-            // Render kartu produk
             currentProducts.forEach(produk => {
                 const card = document.createElement('div');
                 const isHabis = produk.stok <= 0;
@@ -443,18 +445,15 @@
                 wadahKatalog.appendChild(card);
             });
 
-            // Render tombol navigasi halaman di bawah grid
             renderPaginationControls(totalPages);
         }
 
-        // Fungsi Tombol Navigasi Halaman
         function renderPaginationControls(totalPages) {
             const paginationContainer = document.getElementById('pagination-controls');
             paginationContainer.innerHTML = '';
 
-            if (totalPages <= 1) return; // Sembunyikan jika halaman cuma 1
+            if (totalPages <= 1) return;
 
-            // Tombol Sebelumnya
             const prevBtn = document.createElement('button');
             prevBtn.innerText = '‹ Prev';
             prevBtn.disabled = currentPage === 1;
@@ -466,14 +465,12 @@
             };
             paginationContainer.appendChild(prevBtn);
 
-            // Teks Info Halaman
             const info = document.createElement('span');
             info.style.fontSize = '13px';
             info.style.fontWeight = 'bold';
             info.innerText = `Hal ${currentPage} dari ${totalPages}`;
             paginationContainer.appendChild(info);
 
-            // Tombol Berikutnya
             const nextBtn = document.createElement('button');
             nextBtn.innerText = 'Next ›';
             nextBtn.disabled = currentPage === totalPages;
@@ -486,13 +483,12 @@
             paginationContainer.appendChild(nextBtn);
         }
 
-        // Event Listener Pencarian dengan Debounce (Mencegah Lag saat mengetik cepat)
         document.getElementById('search-bar').addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                currentPage = 1; // Reset ke halaman 1 saat melakukan pencarian baru
+                currentPage = 1;
                 renderKatalog();
-            }, 300); // Jeda 300 milidetik sebelum memproses pencarian
+            }, 300);
         });
 
         function tambahKeKeranjang(idProduk) {
@@ -600,7 +596,7 @@
             simpanKeStorage(); kosongkanKeranjang(true); renderKatalog(); renderTabelAdmin();
         }
 
-        // --- 3. FITUR ADMIN & IMPOR CSV ---
+        // --- 3. FITUR ADMIN, IMPOR CSV & HAPUS SEMUA BARANG ---
         function bukaModalAdmin() {
             renderTabelAdmin();
             document.getElementById('modal-admin').style.display = 'flex';
@@ -692,6 +688,27 @@
             }
         }
 
+        // --- FITUR BARU: HAPUS SEMUA BARANG SECARA MENYELURUH ---
+        function hapusSemuaBarang() {
+            if (daftarProduk.length === 0) {
+                return showToast("Daftar barang sudah kosong!", "error");
+            }
+
+            if (confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH daftar barang secara menyeluruh? Tindakan ini tidak dapat dibatalkan.")) {
+                daftarProduk = [];
+                keranjang = []; // Kosongkan keranjang agar bersih total
+                currentPage = 1;
+                
+                simpanKeStorage();
+                renderKategori();
+                renderKatalog();
+                perbaruiTampilanKeranjang();
+                renderTabelAdmin();
+                
+                showToast("Semua barang berhasil dihapus dari sistem!", "success");
+            }
+        }
+
         // Impor Daftar Barang dari CSV
         function imporDataCSV(event) {
             const file = event.target.files[0];
@@ -726,7 +743,8 @@
                         let stokBarang = 0;
                         if (kolom.length >= 5 && kolom[4]) {
                             let stokBersih = kolom[4].replace(/['"]/g, '').replace(/[^0-9]/g, '');
-                            stokBarang = parseInt(stokBersih) || 0;
+                            stokBersih = parseInt(stokBersih) || 0;
+                            stokBarang = stokBersih;
                         }
                         
                         if (!nama) continue; 
@@ -746,7 +764,7 @@
                     }
                 }
 
-                currentPage = 1; // Reset halaman ke 1 setelah impor sukses
+                currentPage = 1; 
                 simpanKeStorage();
                 renderKategori();
                 renderKatalog();
