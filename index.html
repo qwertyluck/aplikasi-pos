@@ -2,56 +2,253 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi POS Sederhana</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi POS Modern</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { display: flex; gap: 20px; }
-        .panel { flex: 1; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
+        :root {
+            --primary: #4F46E5;
+            --danger: #EF4444;
+            --success: #10B981;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text: #1F2937;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
+
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .panel { 
+            flex: 1; 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+        }
+
+        /* Katalog Produk */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .product-card {
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .product-name { font-weight: bold; margin-bottom: 5px; }
+        .product-price { color: var(--success); font-weight: bold; }
+
+        /* Tabel Keranjang */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+        th { background-color: #F9FAFB; font-weight: 600; }
+        
+        /* Tombol */
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.8; }
+        .btn-delete { background-color: var(--danger); padding: 5px 10px; font-size: 12px; }
+        .btn-print { background-color: var(--success); width: 100%; padding: 12px; margin-top: 15px; font-size: 16px;}
+        .btn-reset { background-color: var(--danger); width: 100%; padding: 12px; margin-top: 10px; font-size: 16px;}
+
+        .total-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #E5E7EB;
+            text-align: right;
+            font-size: 20px;
+        }
+
+        /* Pengaturan Cetak (Print) */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { display: block; }
+            .panel:first-child { display: none; /* Sembunyikan produk saat cetak */ }
+            .panel { box-shadow: none; border: none; padding: 0; }
+            .btn-print, .btn-reset, .btn-delete, th:last-child, td:last-child { display: none; /* Sembunyikan tombol & kolom aksi */ }
+            h2 { display: none; }
+        }
     </style>
 </head>
 <body>
 
-    <h2>Aplikasi Kasir / Nota Sederhana</h2>
+    <h2>Terminal POS Kasir</h2>
+    
     <div class="container">
         <div class="panel">
             <h3>Pilih Produk</h3>
-            <button onclick="tambahItem('Kopi Susu', 15000)">Tambah Kopi Susu (Rp 15.000)</button><br><br>
-            <button onclick="tambahItem('Roti Bakar', 10000)">Tambah Roti Bakar (Rp 10.000)</button>
+            <div class="product-grid" id="katalog-produk">
+                </div>
         </div>
 
-        <div class="panel">
-            <h3>Nota Belanja</h3>
+        <div class="panel" id="area-nota">
+            <h3 style="text-align: center;">Nota Belanja</h3>
+            <p style="text-align: center; color: #6b7280; font-size: 12px;" id="waktu-transaksi"></p>
+            
             <table>
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Harga</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="tabel-keranjang">
                     </tbody>
             </table>
-            <h3>Total: Rp <span id="total-harga">0</span></h3>
+            
+            <div class="total-section">
+                <strong>Total: Rp <span id="total-harga">0</span></strong>
+            </div>
+
+            <button class="btn-print" onclick="cetakNota()">🖨️ Cetak Nota</button>
+            <button class="btn-reset" onclick="kosongkanKeranjang()">🗑️ Batalkan Transaksi</button>
         </div>
     </div>
 
     <script>
-        let total = 0;
-        let tabelKeranjang = document.getElementById('tabel-keranjang');
-        let spanTotal = document.getElementById('total-harga');
+        // 1. Database Produk Sederhana
+        const daftarProduk = [
+            { id: 1, nama: 'Kopi Susu', harga: 15000, ikon: '☕' },
+            { id: 2, nama: 'Roti Bakar', harga: 12000, ikon: '🍞' },
+            { id: 3, nama: 'Es Teh Manis', harga: 5000, ikon: '🍹' },
+            { id: 4, nama: 'Mie Goreng', harga: 18000, ikon: '🍜' },
+            { id: 5, nama: 'Nasi Goreng', harga: 20000, ikon: '🍛' },
+            { id: 6, nama: 'Kentang Goreng', harga: 10000, ikon: '🍟' }
+        ];
 
-        function tambahItem(nama, harga) {
-            let row = tabelKeranjang.insertRow();
-            row.insertCell(0).innerText = nama;
-            row.insertCell(1).innerText = harga.toLocaleString();
-            
-            total += harga;
-            spanTotal.innerText = total.toLocaleString();
+        let keranjang = []; // Menyimpan data pesanan
+
+        // Format angka ke Rupiah
+        const formatRupiah = (angka) => {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        };
+
+        // 2. Render Katalog Produk ke HTML
+        function renderKatalog() {
+            const wadahKatalog = document.getElementById('katalog-produk');
+            wadahKatalog.innerHTML = '';
+
+            daftarProduk.forEach(produk => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => tambahKeKeranjang(produk.id);
+                card.innerHTML = `
+                    <div style="font-size: 30px; margin-bottom: 10px;">${produk.ikon}</div>
+                    <div class="product-name">${produk.nama}</div>
+                    <div class="product-price">Rp ${formatRupiah(produk.harga)}</div>
+                `;
+                wadahKatalog.appendChild(card);
+            });
         }
-    </script>
 
+        // 3. Logika Menambah ke Keranjang
+        function tambahKeKeranjang(idProduk) {
+            const produk = daftarProduk.find(p => p.id === idProduk);
+            const itemDiKeranjang = keranjang.find(item => item.id === idProduk);
+
+            if (itemDiKeranjang) {
+                // Jika sudah ada, tambah kuantitasnya
+                itemDiKeranjang.qty += 1;
+            } else {
+                // Jika belum ada, masukkan sebagai item baru
+                keranjang.push({
+                    id: produk.id,
+                    nama: produk.nama,
+                    harga: produk.harga,
+                    qty: 1
+                });
+            }
+            perbaruiTampilanKeranjang();
+        }
+
+        // 4. Logika Menghapus Item dari Keranjang
+        function hapusItem(idProduk) {
+            keranjang = keranjang.filter(item => item.id !== idProduk);
+            perbaruiTampilanKeranjang();
+        }
+
+        // 5. Render Keranjang dan Hitung Total
+        function perbaruiTampilanKeranjang() {
+            const tabelBody = document.getElementById('tabel-keranjang');
+            const spanTotal = document.getElementById('total-harga');
+            tabelBody.innerHTML = ''; // Bersihkan tabel
+            let total = 0;
+
+            keranjang.forEach(item => {
+                const subtotal = item.harga * item.qty;
+                total += subtotal;
+
+                const baris = tabelBody.insertRow();
+                baris.innerHTML = `
+                    <td>${item.nama}</td>
+                    <td>${item.qty}</td>
+                    <td>${formatRupiah(subtotal)}</td>
+                    <td><button class="btn-delete" onclick="hapusItem(${item.id})">X</button></td>
+                `;
+            });
+
+            spanTotal.innerText = formatRupiah(total);
+            
+            // Perbarui waktu transaksi
+            const waktuEl = document.getElementById('waktu-transaksi');
+            waktuEl.innerText = new Date().toLocaleString('id-ID');
+        }
+
+        // 6. Fitur Kosongkan Keranjang
+        function kosongkanKeranjang() {
+            if(keranjang.length === 0) return;
+            if(confirm("Apakah Anda yakin ingin membatalkan transaksi ini?")) {
+                keranjang = [];
+                perbaruiTampilanKeranjang();
+            }
+        }
+
+        // 7. Fitur Cetak Nota
+        function cetakNota() {
+            if(keranjang.length === 0) {
+                alert("Keranjang kosong. Tambahkan produk terlebih dahulu.");
+                return;
+            }
+            window.print();
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        renderKatalog();
+    </script>
 </body>
 </html>
