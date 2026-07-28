@@ -340,6 +340,38 @@
     </div>
     
     <script>
+// 1. Fungsi untuk Membuka Menu Kelola Produk / Admin
+function bukaModalAdmin() {
+    const modal = document.getElementById('modalAdmin') || document.getElementById('adminModal');
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.error("Elemen modalAdmin tidak ditemukan di HTML.");
+    }
+}
+
+// 2. Fungsi untuk Mengaktifkan Mode Gelap / Terang (Dark Mode)
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    
+    // Menyimpan preferensi tema ke memori lokal browser
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+// 3. Fungsi untuk Membuka Dashboard / Laporan
+function bukaModalDashboard() {
+    const modal = document.getElementById('modalDashboard') || document.getElementById('dashboardModal');
+    if (modal) {
+        modal.style.display = 'block';
+        // Panggil fungsi pembaruan data dashboard jika ada (misal: hitung total pendapatan)
+        if (typeof updateDashboard === 'function') {
+            updateDashboard();
+        }
+    } else {
+        console.error("Elemen modalDashboard tidak ditemukan di HTML.");
+    }
+}
         
 // Sambungan ke Cloud Supabase
     const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
