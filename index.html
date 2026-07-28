@@ -374,9 +374,9 @@ function bukaModalDashboard() {
 }
         
 // Sambungan ke Cloud Supabase
-    const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- 1. SETUP DATABASE AWAL ---
         const databaseAwal = [
@@ -726,7 +726,6 @@ function bukaModalDashboard() {
             }
         }
 
-        // --- FITUR BARU: HAPUS SEMUA BARANG SECARA MENYELURUH ---
         function hapusSemuaBarang() {
             if (daftarProduk.length === 0) {
                 return showToast("Daftar barang sudah kosong!", "error");
@@ -734,7 +733,7 @@ function bukaModalDashboard() {
 
             if (confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH daftar barang secara menyeluruh? Tindakan ini tidak dapat dibatalkan.")) {
                 daftarProduk = [];
-                keranjang = []; // Kosongkan keranjang agar bersih total
+                keranjang = []; 
                 currentPage = 1;
                 
                 simpanKeStorage();
@@ -747,7 +746,6 @@ function bukaModalDashboard() {
             }
         }
 
-        // Impor Daftar Barang dari CSV
         function imporDataCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
