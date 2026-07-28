@@ -1,0 +1,220 @@
+No,Nama Barang,Satuan,Harga,Stok
+1,Semen,Sak,90000,30
+2,Semen Biasa,Kilo,3500,30
+3,Kaca Meja,Lembar,150000,30
+4,Cat Matex,Kaleng,75000,30
+5,Air Isi Ulang,Galon,7000,30
+6,Air Mineral Kemasan,Dus,40000,30
+7,Bahan Pangan Lainnya,Pcs,15000,30
+8,Daun Teh Celup,Pcs,10000,30
+9,Papper Cup,Pcs,15000,30
+10,Pena Pilot Ball Liner,Dus,35000,30
+11,Alat Tulis,Pcs,15000,30
+12,Spidol Snowman,Buah,7000,30
+13,Pena Queen,Dus,35000,30
+14,Spidol Permanen,Buah,7000,30
+15,Pena Ball,Pcs,7000,30
+16,Pena Metal,Pcs,7000,30
+17,Pena V-5,Dus,35000,30
+18,Pena Faster satuan,buah,7000,30
+19,pena k I,pcs,7000,30
+20,pena K I dus,dus,35000,30
+21,stabillo,buah,7000,30
+22,Tinta Stempel,Pcs,35000,30
+23,Tinta Spidol,Pcs,7000,30
+24,Penjepit Kertas,Buah,15000,30
+25,Binder Clip 300,Dos,15000,30
+26,Binder Clip 200,Dos,15000,30
+27,Binder Clip 155,Dos,15000,30
+28,Binder Clip 260,Dos,15000,30
+29,Binder Clips 280,Dus,15000,30
+30,clip warna,pak,15000,30
+31,binder clip 107,dus,15000,30
+32,Penghapus Pena,Buah,7000,30
+33,Penghapus Pensil,Buah,15000,30
+34,Buku Tulis,Buah,15000,30
+35,Buku Register,Buah,15000,30
+36,Buku Nota Kecil,Pak,15000,30
+37,Kwitansi Sedang,buah,15000,30
+38,Kwitansi Kecil,buah,15000,30
+39,buku ekspedisi,pcs,15000,30
+40,BR Folio,buah,15000,30
+41,Ordner,Buah,15000,30
+42,Map,Pcs,15000,30
+43,penggaris BJ,buah,15000,30
+44,Cutter (ATK Kantor),Pcs,15000,30
+45,Cutter Besar,Buah,15000,30
+46,Cutter Kecil,Buah,15000,30
+47,isi cutter besar,dus,60000,30
+48,isi cutter kecil,dus,60000,30
+49,gunting,buah,15000,30
+50,gunting besar,buah,15000,30
+51,gunting kecil,buah,15000,30
+52,Lem Kertas,Buah,15000,30
+53,Lakban Besar,Buah,15000,30
+54,Doubletip Besar,Buah,15000,30
+55,Doubletip Kecil,Buah,15000,30
+56,Lem Castol,Buah,15000,30
+57,Lem Daun Seng,Buah,15000,30
+58,lakban coklat,buah,15000,30
+59,lakban hitam,buah,15000,30
+60,Staples (K),Buah,15000,30
+61,Staples (S),Buah,15000,30
+62,hekter jilid,buah,15000,30
+63,pelubang kertas,buah,15000,30
+64,hakter kecil,buah,15000,30
+65,hakter besar,buah,15000,30
+66,Isi Staples Kecil,Dus,60000,30
+67,Isi Staples Sedang,Dus,60000,30
+68,ATK Lainnya,Buah,15000,30
+69,Boxfile,Buah,125000,30
+70,Benang Tukang,Buah,15000,30
+71,Gunting Sedang,Buah,15000,30
+72,Staples Sedang,Buah,15000,30
+73,Staples Kecil,Buah,15000,30
+74,Binder Clips 260,Dus,15000,30
+75,Binder Clips 200,Dus,15000,30
+76,Binder Clips 155,Dus,15000,30
+77,Binder Clips 111,Dus,15000,30
+78,Clips,Dus,15000,30
+79,Stereofoam,Buah,15000,30
+80,Mouse Wireless,Buah,15000,30
+81,Pena Baliner,Buah,7000,30
+82,Name Plate,Buah,15000,30
+83,Stand Book,Pcs,15000,30
+84,Doubletip 24 mm,Buah,15000,30
+85,Doubletip 48 mm,Buah,15000,30
+86,Pena Faster,Dua,7000,30
+87,Amplop Kecil,Dus,60000,30
+88,Stabilo,Buah,15000,30
+89,Kertas F4 Warna,Rim,65000,30
+90,Box,Buah,125000,30
+91,File Ordner,Buah,15000,30
+92,Flash Disk 4GB,Buah,15000,30
+93,TipeX,Buah,15000,30
+94,Kertas HVS Putih,Rim,65000,30
+95,Kertas HVS Warna,Rim,65000,30
+96,HVS Putih,Dus,60000,30
+97,HVS Warna,Dus,60000,30
+98,sticnote,pak,25000,30
+99,Berbagai Kertas,Pcs,15000,30
+100,Kertas Bufalo,Pcs,15000,30
+101,Kertas Sticnote,Pcs,15000,30
+102,Kertas Folio,Buah,15000,30
+103,Kertas Plano,Lembar,15000,30
+104,Kertas Kaf,lembar,15000,30
+105,Kertas Wraping,rol,25000,30
+106,Kertas Cover,Pcs,15000,30
+107,Bufalo,Pcs,15000,30
+108,Amplop A,Pcs,15000,30
+109,Amplop Coklat Besar,Pcs,15000,30
+110,Amplop Coklat Kecil,Pcs,15000,30
+111,Tints Epson 003,Botol,12000,30
+112,Tinta Printer Epson 003,Pcs,35000,30
+113,Tinta Printer Cannon,Pcs,35000,30
+114,Flashdisk 8GB,Buah,15000,30
+115,Flashdisk 4GB,Buah,15000,30
+116,flashdisk 128 GB,buah,15000,30
+117,flashdisk 32 GB,buah,15000,30
+118,flashdisk 16 GB,buah,15000,30
+119,Mouse Logitech,Buah,15000,30
+120,Mouse Pad,BPcs,25000,30
+121,Sapu Ijuk,Buah,15000,30
+122,Sikat,Buah,15000,30
+123,Sapu Lidi,Pcs,15000,30
+124,Alat Pel,Buah,15000,30
+125,Spon Lap Mobil,Pcs,15000,30
+126,Kain Lap Mobil,Buah,15000,30
+127,Spons Biasa,Buah,15000,30
+128,Tisu,Pcs,15000,30
+129,Tempat Sabun,Pcs,15000,30
+130,Keset Kaki,Buah,15000,30
+131,Trash Bag,Pcs,15000,30
+132,tas kresek,pak,25000,30
+133,keranjang sampah,buah,15000,30
+134,Bahan Kimia Untuk Pembersih,Pcs,15000,30
+135,Porstex,Botol,12000,30
+136,Kanebo,Buah,15000,30
+137,Stella Matic,Buah,15000,30
+138,Kanper Swallow,Pcs,15000,30
+139,Sabun Cuci Piring,Pcs,15000,30
+140,Tissu,Pcs,15000,30
+141,Lilin,Buah,15000,30
+142,Kaporit,Kilo,20000,30
+143,Sabun Ekonomi,pcs,15000,30
+144,Sendok,Lusin,45000,30
+145,cangkir,dus,60000,30
+146,by fresh,buah,15000,30
+147,stela alat,buah,15000,30
+148,refil stela,botol,12000,30
+149,Kuas Roll,Buah,15000,30
+150,Klem Kabel,Dus,60000,30
+151,Kabel Snur,Meter,10000,30
+152,Terminal Cok,Buah,15000,30
+153,Fisher,Pcs,15000,30
+154,Semprotan,Buah,15000,30
+155,Gunting Rumput,Pcs,15000,30
+156,Name_Plate,Buah,15000,30
+157,Bunga Pot,pcs,40000,30
+158,Tempat tissue kecil,buah,15000,30
+159,Mangkok permen,pcs,15000,30
+160,Topless,Pcs,15000,30
+161,Kotak,Pcs,15000,30
+162,Gorden,lembar,90000,30
+163,Dispenser,unit,250000,30
+164,LPG,tabung,25000,30
+165,box kontainer,buah,125000,30
+166,Kabel Listrik,Meter,10000,30
+167,kabel roll,buah,85000,30
+168,Lampu 10 W,Pcs,35000,30
+169,Lampu LED 11 Watt,pcs,35000,30
+170,Lampu LED 8 Watt,pcs,35000,30
+171,Stop Kontak,pcs,20000,30
+172,Steker Besar,Buah,20000,30
+173,Steker Kecil,Buah,20000,30
+174,Baterai AA,Pcs,5000,30
+175,Baterai AAA,Pcs,5000,30
+176,Baterai_AA,pak,20000,30
+177,Perlengkapan Dinas Lainnya,Pcs,15000,30
+178,ID Card,Buah,5000,30
+179,Tempat ID Card,Buah,5000,30
+180,Meterai,Lembar,12000,30
+181,Perlengkapan Penunjang Kegiatan Kantor Lainnya,Pcs,15000,30
+182,Breket TV,Buah,150000,30
+183,Vas Bunga,Buah,50000,30
+184,Batu Vas Bunga,Pcs,50000,30
+185,Bunga Plastik,Pcs,40000,30
+186,Kain Satin Hijau,Meter,20000,30
+187,Portex Sedang,Buah,15000,30
+188,Kanper,Pcs,15000,30
+189,Tipe X Sedang,Buah,15000,30
+190,Penggaris Sedang,Buah,15000,30
+191,Spanduk,Buah,15000,30
+192,Keranjang,Buah,15000,30
+193,Tas Kain,Buah,15000,30
+194,Toples,Buah,15000,30
+195,Plastik ID Card,Buah,5000,30
+196,Box Container,Buah,125000,30
+197,Gorden Jendela,Buah,90000,30
+198,payung,buah,15000,30
+199,box file,buah,125000,30
+200,webcam,unit,150000,30
+201,Cat,Kaleng,75000,30
+202,Thiner,Kaleng,35000,30
+203,Kuas Cat,Pcs,75000,30
+204,Keran Set,Pcs,15000,30
+205,Kantong Sampah,Pcs,15000,30
+206,Tissu Kecil,Pcs,15000,30
+207,Tisu Besar,Pcs,15000,30
+208,Kantong Sampah Kecil,Pcs,15000,30
+209,White Board Sedang,Buah,15000,30
+210,BBM,Liter,15000,30
+211,PERTAMAX,LITER,15000,30
+212,Kit Ban,Botol,12000,30
+213,Name Plates,Buah,15000,30
+214,Pembatas Buku,Pasang,15000,30
+215,Kaca Riben 5 mil,lembar,150000,30
+216,motor,unit,150000,30
+217,BRANKAS,UNIT,150000,30
+218,televisi,unit,150000,30
+219,infocus,unit,150000,30
