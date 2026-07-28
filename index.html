@@ -593,7 +593,7 @@
             }
         }
 
-        // Impor Daftar Barang dari CSV
+        // Impor Daftar Barang dari CSV (Versi Lebih Pintar & Tahan Banting)
         function imporDataCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -601,30 +601,41 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                // Membaca per baris dari file
-                const lines = text.split(/\r?\n/);
+                
+                // PERBAIKAN 1: Membaca segala jenis format baris baru (Windows, Mac, Linux)
+                const lines = text.split(/\r\n|\n|\r/); 
                 let jumlahDiimpor = 0;
 
-                // Mulai dari i=1 untuk melewati Baris Pertama (Header)
+                // PERBAIKAN 2: Deteksi otomatis apakah pemisahnya menggunakan koma (,) atau titik koma (;)
+                let pemisah = ';';
+                if (lines.length > 0 && lines[0].includes(',')) {
+                    pemisah = ',';
+                }
+
+                // Mulai dari i=1 untuk melewati Baris Pertama (Header/Judul)
                 for (let i = 1; i < lines.length; i++) { 
-                    if (!lines[i].trim()) continue; // Jika baris kosong, skip
+                    if (!lines[i].trim()) continue; // Jika baris kosong, lewati
                     
-                    const kolom = lines[i].split(';'); // Pemisah dari dokumen anda adalah ";"
+                    const kolom = lines[i].split(pemisah); 
                     
+                    // Pastikan minimal ada kolom Nama Barang (kolom ke-2)
                     if (kolom.length >= 2) {
-                        const nama = kolom[1].trim();
-                        const satuan = kolom[2] ? kolom[2].trim() : '';
+                        // PERBAIKAN 3: Bersihkan tanda kutip ganda/tunggal jika Excel menambahkannya
+                        const nama = kolom[1].replace(/['"]/g, '').trim();
+                        const satuan = kolom[2] ? kolom[2].replace(/['"]/g, '').trim() : '';
                         
+                        if (!nama) continue; // Jangan impor jika namanya kosong
+
                         const idBaru = dapatkanBarcodeBaru();
                         
                         daftarProduk.push({
                             id: idBaru.id,
-                            barcode: idBaru.barcode, // Barcode digenerate sesuai urutan
-                            nama: satuan ? `${nama} (${satuan})` : nama, // Menggabungkan Nama dan Satuan
-                            harga: 0, // Karena CSV tidak ada harga, diset Default 0
+                            barcode: idBaru.barcode,
+                            nama: satuan ? `${nama} (${satuan})` : nama,
+                            harga: 0,
                             ikon: '📦',
                             kategori: 'Barang Impor', 
-                            stok: 0 // Stok dikosongkan dahulu
+                            stok: 0
                         });
                         jumlahDiimpor++;
                     }
@@ -634,8 +645,15 @@
                 renderKategori();
                 renderKatalog();
                 renderTabelAdmin();
-                showToast(`${jumlahDiimpor} barang dari CSV berhasil masuk!`, 'success');
-                event.target.value = ''; // Reset uploader file
+                
+                // Tampilkan notifikasi hasil
+                if (jumlahDiimpor > 0) {
+                    showToast(`${jumlahDiimpor} barang berhasil diimpor!`, 'success');
+                } else {
+                    showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
+                }
+                
+                event.target.value = ''; // Reset uploader agar bisa upload file yang sama lagi jika perlu
             };
             reader.readAsText(file);
         }
