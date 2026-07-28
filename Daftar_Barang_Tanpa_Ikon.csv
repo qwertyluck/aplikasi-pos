@@ -1,0 +1,55 @@
+barcode,name,price,category,stock
+1,Semen,85000,Bahan Bangunan,30
+2,Semen Biasa,3000,Bahan Bangunan,30
+3,Kaca Meja,150000,Bahan Bangunan,30
+4,Cat Matex,65000,Bahan Bangunan,30
+5,Air Isi Ulang,7000,Konsumsi,30
+6,Air Mineral Kemasan,35000,Konsumsi,30
+7,Bahan Pangan Lainnya,15000,Konsumsi,30
+8,Daun Teh Celup,8000,Konsumsi,30
+9,Papper Cup,15000,Lain-lain,30
+10,Pena Pilot Ball Liner,35000,ATK,30
+11,Alat Tulis,5000,Lain-lain,30
+12,Spidol Snowman,8500,ATK,30
+13,Pena Queen,20000,ATK,30
+14,Spidol Permanen,10000,ATK,30
+15,Pena Ball,3500,ATK,30
+16,Pena Metal,15000,ATK,30
+17,Pena V-5,40000,ATK,30
+18,Pena Faster satuan,4000,ATK,30
+19,pena k I,3000,ATK,30
+20,pena K I dus,30000,ATK,30
+21,stabillo,10000,ATK,30
+22,Tinta Stempel,15000,ATK,30
+23,Tinta Spidol,25000,ATK,30
+24,Penjepit Kertas,15000,ATK,30
+25,Binder Clip 300,18000,ATK,30
+26,Binder Clip 200,12000,ATK,30
+27,Binder Clip 155,9000,ATK,30
+28,Binder Clip 260,15000,ATK,30
+160,Topless,25000,Lain-lain,30
+161,Kotak,15000,Lain-lain,30
+162,Gorden,85000,Lain-lain,30
+163,Dispenser,250000,Elektronik,30
+164,LPG,25000,Konsumsi,30
+165,box kontainer,120000,Lain-lain,30
+166,Kabel Listrik,8000,Elektronik,30
+167,kabel roll,75000,Elektronik,30
+168,Lampu 10 W,25000,Elektronik,30
+169,Lampu LED 11 Watt,35000,Elektronik,30
+170,Lampu LED 8 Watt,30000,Elektronik,30
+171,Stop Kontak,18000,Elektronik,30
+172,Steker Besar,15000,Elektronik,30
+173,Steker Kecil,8000,Elektronik,30
+174,Baterai AA,4000,Elektronik,30
+175,Baterai AAA,4000,Elektronik,30
+176,Baterai_AA,15000,Elektronik,30
+177,Perlengkapan Dinas Lainnya,50000,Lain-lain,30
+178,ID Card,5000,ATK,30
+179,Tempat ID Card,3500,ATK,30
+180,Meterai,12000,ATK,30
+181,Perlengkapan Penunjang Kegiatan Kantor Lainnya,50000,Lain-lain,30
+182,Breket TV,120000,Lain-lain,30
+183,Vas Bunga,45000,Lain-lain,30
+184,Batu Vas Bunga,15000,Lain-lain,30
+185,Bunga Plastik,35000,Lain-lain,30
