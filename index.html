@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi POS (Point Of Sale)</title>
+    <title>Aplikasi POS (Point Of Sale) - JSONbin Cloud</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -179,7 +179,6 @@
             .input-group input, .input-group select { border: none; background: transparent; padding: 0; font-family: monospace;}
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -340,6 +339,12 @@
     
     <script>
         // ==========================================
+        // KONFIGURASI JSONBIN.IO (DATABASE CLOUD)
+        // ==========================================
+        const JSONBIN_BIN_ID = '6a68f54cda38895dfe9cae01'; 
+        const JSONBIN_MASTER_KEY = '$2a$10$NkK8j3RVxy5BHhjGX0AO6.BiyJ/0WK/rWx5fXSJa0UlWW0cHcmG0C'; 
+
+        // ==========================================
         // PENGATURAN FUNGSI GLOBAL & NAVIGASI
         // ==========================================
         window.bukaModalAdmin = function() {
@@ -366,47 +371,48 @@
         };
 
         // ==========================================
-        // KONEKSI SUPABASE AMAN & SINKRONISASI LENGKAP
+        // FUNGSI SINKRONISASI CLOUD (JSONBIN)
         // ==========================================
-        let supabaseClient = null;
-        try {
-            if (window.supabase) {
-                const SUPABASE_URL = 'https://kidzsioyibtrxgplnodz.supabase.co';
-                const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
-                
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log("Supabase berhasil terhubung dengan sukses!");
-            }
-        } catch (err) {
-            console.warn("Gagal terhubung ke Supabase:", err);
-        }
-
-        // Fungsi untuk menarik data real-time dari Supabase ke aplikasi POS
-        async function muatProdukDariSupabase() {
-            if (!supabaseClient) return;
+        async function muatProdukDariCloud() {
+            if (JSONBIN_BIN_ID === 'MASUKKAN_BIN_ID_ANDA_DISINI') return; // Lewati jika belum diisi
             try {
-                const { data, error } = await supabaseClient
-                    .from('products')
-                    .select('*');
-                    
-                if (error) throw error;
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
+                });
+                if (!response.ok) throw new Error("Gagal mengambil data dari cloud");
+                const result = await response.json();
                 
-                if (data && data.length > 0) {
-                    daftarProduk = data; // Memperbarui variabel produk utama POS dengan data cloud
+                if (result && result.record) {
+                    daftarProduk = result.record;
                     window.simpanKeStorage();
-                    if (typeof renderKategori === 'function') renderKategori();
-                    if (typeof renderKatalog === 'function') renderKatalog();
-                    if (typeof renderTabelAdmin === 'function') renderTabelAdmin();
-                    console.log("Data berhasil disinkronkan dari Supabase!");
+                    window.renderKategori();
+                    window.renderKatalog();
+                    window.renderTabelAdmin();
+                    console.log("Data produk berhasil dimuat dari JSONbin Cloud!");
                 }
             } catch (err) {
-                console.error("Gagal memuat produk dari Supabase:", err.message);
+                console.warn("Menggunakan data lokal (Offline mode):", err.message);
             }
         }
 
-        // Jalankan pengambilan data saat halaman pertama kali dimuat
+        async function simpanProdukKeCloud() {
+            if (JSONBIN_BIN_ID === 'MASUKKAN_BIN_ID_ANDA_DISINI') return;
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_MASTER_KEY
+                    },
+                    body: JSON.stringify(daftarProduk)
+                });
+            } catch (err) {
+                console.error("Gagal menyimpan ke cloud:", err);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            muatProdukDariSupabase();
+            muatProdukDariCloud();
         });
 
         // ==========================================
@@ -653,6 +659,7 @@
             window.showToast("Transaksi Berhasil!", "success");
             window.print();
             window.simpanKeStorage(); 
+            simpanProdukKeCloud(); // Perbarui stok di cloud
             window.kosongkanKeranjang(true); 
             window.renderKatalog(); 
             window.renderTabelAdmin();
@@ -696,6 +703,7 @@
             if (produk) {
                 produk[field] = parseInt(newValue) || 0;
                 window.simpanKeStorage();
+                simpanProdukKeCloud();
                 window.renderKatalog(); 
                 window.showToast(`${field.toUpperCase()} berhasil diperbarui!`, 'success');
             }
@@ -714,16 +722,12 @@
             
             daftarProduk.push(produkBaru);
 
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('products').insert([produkBaru]);
-                if (error) console.error("Gagal sinkron tambah manual ke Supabase:", error);
-            }
-
             window.simpanKeStorage();
+            await simpanProdukKeCloud();
             window.renderKategori();
             window.renderKatalog();
             window.renderTabelAdmin();
-            window.showToast('Produk Baru Berhasil Ditambahkan!', 'success');
+            window.showToast('Produk Baru Berhasil Ditambahkan & Disimpan ke Cloud!', 'success');
             
             document.getElementById('add-nama').value = '';
             document.getElementById('add-harga').value = '';
@@ -733,15 +737,11 @@
 
         window.hapusProdukDariDatabase = async function(idProduk) {
             if(confirm("Yakin ingin menghapus barang ini secara permanen?")) {
-                const produkDihapus = daftarProduk.find(p => p.id === idProduk);
                 daftarProduk = daftarProduk.filter(p => p.id !== idProduk);
                 keranjang = keranjang.filter(k => k.id !== idProduk); 
 
-                if (supabaseClient && produkDihapus) {
-                    await supabaseClient.from('products').delete().eq('barcode', produkDihapus.barcode);
-                }
-
                 window.simpanKeStorage(); 
+                await simpanProdukKeCloud();
                 window.renderKategori(); 
                 window.renderKatalog(); 
                 window.perbaruiTampilanKeranjang(); 
@@ -757,11 +757,8 @@
                 keranjang = []; 
                 currentPage = 1;
 
-                if (supabaseClient) {
-                    await supabaseClient.from('products').delete().neq('id', 0); // Hapus semua baris di Supabase
-                }
-
                 window.simpanKeStorage(); 
+                await simpanProdukKeCloud();
                 window.renderKategori(); 
                 window.renderKatalog(); 
                 window.perbaruiTampilanKeranjang(); 
@@ -778,7 +775,7 @@
             reader.onload = async function(e) {
                 const text = e.target.result;
                 const lines = text.split(/\r\n|\n|\r/); 
-                let dataBaruBaris = [];
+                let jumlahDiimpor = 0;
                 let pemisah = lines.length > 0 && lines[0].includes(',') ? ',' : ';';
 
                 for (let i = 1; i < lines.length; i++) { 
@@ -812,28 +809,20 @@
                             stok: stokBarang 
                         };
 
-                        dataBaruBaris.push(itemProduk);
                         daftarProduk.push(itemProduk);
-                    }
-                }
-
-                // Simpan ke Supabase jika koneksi aktif
-                if (supabaseClient && dataBaruBaris.length > 0) {
-                    const { error } = await supabaseClient.from('products').insert(dataBaruBaris);
-                    if (error) {
-                        console.error("Gagal sinkron ke Supabase:", error);
-                        window.showToast("Gagal menyimpan ke Cloud Supabase!", "error");
+                        jumlahDiimpor++;
                     }
                 }
 
                 currentPage = 1; 
                 window.simpanKeStorage(); 
+                await simpanProdukKeCloud();
                 window.renderKategori(); 
                 window.renderKatalog(); 
                 window.renderTabelAdmin();
                 
-                if (dataBaruBaris.length > 0) {
-                    window.showToast(`${dataBaruBaris.length} barang berhasil diimpor & disinkronkan ke Cloud!`, 'success');
+                if (jumlahDiimpor > 0) {
+                    window.showToast(`${jumlahDiimpor} barang berhasil diimpor & disinkronkan ke Cloud!`, 'success');
                 } else {
                     window.showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
                 }
