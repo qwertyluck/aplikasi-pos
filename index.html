@@ -719,15 +719,15 @@
             }
         };
 
-        window.imporDataCSV = function(event) {
+window.imporDataCSV = async function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const text = e.target.result;
                 const lines = text.split(/\r\n|\n|\r/); 
-                let jumlahDiimpor = 0;
+                let dataBaruBaris = [];
                 let pemisah = lines.length > 0 && lines[0].includes(',') ? ',' : ';';
 
                 for (let i = 1; i < lines.length; i++) { 
@@ -751,16 +751,26 @@
                         if (!nama) continue; 
 
                         const idBaru = window.dapatkanBarcodeBaru();
-                        daftarProduk.push({ 
-                            id: idBaru.id, 
+                        const itemProduk = { 
                             barcode: idBaru.barcode, 
                             nama: satuan ? `${nama} (${satuan})` : nama, 
                             harga: hargaBarang, 
                             ikon: '📦', 
                             kategori: 'Barang Impor', 
                             stok: stokBarang 
-                        });
-                        jumlahDiimpor++;
+                        };
+
+                        dataBaruBaris.push(itemProduk);
+                        daftarProduk.push({ id: idBaru.id, ...itemProduk });
+                    }
+                }
+
+                // Simpan ke Supabase jika koneksi aktif
+                if (supabaseClient && dataBaruBaris.length > 0) {
+                    const { error } = await supabaseClient.from('products').insert(dataBaruBaris);
+                    if (error) {
+                        console.error("Gagal sinkron ke Supabase:", error);
+                        window.showToast("Gagal menyimpan ke Cloud Supabase!", "error");
                     }
                 }
 
@@ -770,19 +780,16 @@
                 window.renderKatalog(); 
                 window.renderTabelAdmin();
                 
-                if (jumlahDiimpor > 0) window.showToast(`${jumlahDiimpor} barang berhasil diimpor!`, 'success');
-                else window.showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
+                if (dataBaruBaris.length > 0) {
+                    window.showToast(`${dataBaruBaris.length} barang berhasil diimpor & disinkronkan ke Cloud!`, 'success');
+                } else {
+                    window.showToast(`Gagal! Cek kembali format tabel CSV Anda.`, 'error');
+                }
                 
                 event.target.value = ''; 
             };
             reader.readAsText(file);
         };
-
-        window.simpanKeStorage = function() {
-            localStorage.setItem('pos_keranjang', JSON.stringify(keranjang));
-            localStorage.setItem('pos_produk', JSON.stringify(daftarProduk));
-        };
-
         // ==========================================
         // INISIALISASI UTAMA
         // ==========================================
