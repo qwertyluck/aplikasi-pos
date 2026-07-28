@@ -340,40 +340,7 @@
     </div>
     
     <script>
-// 1. Fungsi untuk Membuka Menu Kelola Produk / Admin
-function bukaModalAdmin() {
-    const modal = document.getElementById('modalAdmin') || document.getElementById('adminModal');
-    if (modal) {
-        modal.style.display = 'block';
-    } else {
-        console.error("Elemen modalAdmin tidak ditemukan di HTML.");
-    }
-}
-
-// 2. Fungsi untuk Mengaktifkan Mode Gelap / Terang (Dark Mode)
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    
-    // Menyimpan preferensi tema ke memori lokal browser
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-// 3. Fungsi untuk Membuka Dashboard / Laporan
-function bukaModalDashboard() {
-    const modal = document.getElementById('modalDashboard') || document.getElementById('dashboardModal');
-    if (modal) {
-        modal.style.display = 'block';
-        // Panggil fungsi pembaruan data dashboard jika ada (misal: hitung total pendapatan)
-        if (typeof updateDashboard === 'function') {
-            updateDashboard();
-        }
-    } else {
-        console.error("Elemen modalDashboard tidak ditemukan di HTML.");
-    }
-}
-        
-// Sambungan ke Cloud Supabase
+        // --- KONEKSI SUPABASE CLOUD ---
         const SUPABASE_URL = 'https://kidzsioyibtrxglpnodz.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lzm8REhwBFHyQBJybzfK5w_WDOOaMa2';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -392,12 +359,11 @@ function bukaModalDashboard() {
         let kategoriAktif = 'Semua';
         let grandTotal = 0; 
         
-        // Variabel Paginasi & Pencarian Berkecepatan Tinggi
         let currentPage = 1;
         const itemsPerPage = 16; 
         let searchTimeout = null;
 
-        // Memuat tema gelap 
+        // Memuat tema gelap otomatis jika sebelumnya aktif
         if(localStorage.getItem('pos_dark_mode') === 'true') document.body.classList.add('dark-mode');
         const formatRupiah = (angka) => new Intl.NumberFormat('id-ID').format(angka);
 
@@ -634,10 +600,21 @@ function bukaModalDashboard() {
             simpanKeStorage(); kosongkanKeranjang(true); renderKatalog(); renderTabelAdmin();
         }
 
-        // --- 3. FITUR ADMIN, IMPOR CSV & HAPUS SEMUA BARANG ---
+        // --- 3. FITUR ADMIN & MODAL ---
         function bukaModalAdmin() {
             renderTabelAdmin();
             document.getElementById('modal-admin').style.display = 'flex';
+        }
+
+        function bukaModalDashboard() {
+            const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + trx.total, 0);
+            document.getElementById('dash-pendapatan').innerText = `Rp ${formatRupiah(totalPendapatan)}`;
+            document.getElementById('dash-trx').innerText = riwayatPenjualan.length;
+            document.getElementById('modal-dashboard').style.display = 'flex';
+        }
+
+        function tutupModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
         }
 
         function dapatkanBarcodeBaru() {
@@ -817,15 +794,6 @@ function bukaModalDashboard() {
             reader.readAsText(file);
         }
 
-        function bukaModalDashboard() {
-            const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + trx.total, 0);
-            document.getElementById('dash-pendapatan').innerText = `Rp ${formatRupiah(totalPendapatan)}`;
-            document.getElementById('dash-trx').innerText = riwayatPenjualan.length;
-            document.getElementById('modal-dashboard').style.display = 'flex';
-        }
-
-        function tutupModal(id) { document.getElementById(id).style.display = 'none'; }
-        
         function simpanKeStorage() {
             localStorage.setItem('pos_keranjang', JSON.stringify(keranjang));
             localStorage.setItem('pos_produk', JSON.stringify(daftarProduk));
