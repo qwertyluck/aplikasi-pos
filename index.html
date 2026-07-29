@@ -185,6 +185,7 @@
     <div class="top-navbar">
         <h2><i class="fa-solid fa-shop"></i> Kasir POS Modern</h2>
         <div class="nav-actions">
+            <button class="btn-admin" style="background-color: #059669; color: white;" onclick="window.bukaModalRiwayat()"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Nota</button>
             <button class="btn-admin" onclick="window.bukaModalAdmin()"><i class="fa-solid fa-boxes-stacked"></i> Kelola Produk</button>
             <button onclick="window.toggleDarkMode()"><i class="fa-solid fa-moon"></i> Tema</button>
             <button onclick="window.bukaModalDashboard()"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
@@ -203,6 +204,7 @@
 
         <div class="panel" id="area-nota">
             <h3 style="text-align: center; margin-top: 0;"><i class="fa-solid fa-receipt"></i> Nota Belanja</h3>
+            <p style="text-align: center; font-weight: bold; margin: 5px 0; font-size: 14px;" id="display-no-nota"></p>
             <p style="text-align: center; font-size: 12px; margin-bottom: 20px; opacity: 0.7;" id="waktu-transaksi"></p>
             
             <table>
@@ -336,7 +338,33 @@
             </div>
         </div>
     </div>
-    
+
+    <div class="modal-overlay" id="modal-riwayat">
+        <div class="modal-box" style="max-width: 900px; width: 95%;">
+            <div class="modal-header">
+                <h3 style="margin: 0;"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Nota Transaksi</h3>
+                <i class="fa-solid fa-xmark close-modal" onclick="window.tutupModal('modal-riwayat')"></i>
+            </div>
+            
+            <p style="font-size: 13px; color: gray; margin-bottom: 15px;">Semua data transaksi, nomor nota otomatis, dan rincian barang yang dibeli direkam di sini.</p>
+
+            <div style="max-height: 450px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+                <table>
+                   <thead style="position: sticky; top: 0; z-index: 10;">
+                       <tr>
+                           <th>No. Nota</th>
+                           <th>Waktu Transaksi</th>
+                           <th>Item / Rincian Barang</th>
+                           <th>Total Pembayaran</th>
+                           <th>Aksi</th>
+                       </tr>
+                   </thead>
+                   <tbody id="tabel-riwayat-nota"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==========================================
         // KONFIGURASI JSONBIN.IO (DATABASE CLOUD)
@@ -360,7 +388,7 @@
         };
 
         window.bukaModalDashboard = function() {
-            const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + trx.total, 0);
+            const totalPendapatan = riwayatPenjualan.reduce((sum, trx) => sum + (trx.total || 0), 0);
             document.getElementById('dash-pendapatan').innerText = `Rp ${formatRupiah(totalPendapatan)}`;
             document.getElementById('dash-trx').innerText = riwayatPenjualan.length;
             document.getElementById('modal-dashboard').style.display = 'flex';
@@ -639,12 +667,14 @@
             }
         };
 
+        // 🛠️ PERBARUAN: FUNGSI SELESAIKAN TRANSAKSI (GENERATE NO. NOTA & REKAM DETAIL)
         window.selesaikanTransaksi = function() {
             if(keranjang.length === 0) return window.showToast("Keranjang masih kosong!", "error");
             
             const metode = document.getElementById('metode-bayar').value;
+            const bayar = parseFloat(document.getElementById('input-bayar').value) || 0;
+            
             if(metode === 'Tunai') {
-                const bayar = parseFloat(document.getElementById('input-bayar').value) || 0;
                 if (bayar < grandTotal) return window.showToast("Uang pembayaran kurang!", "error");
             }
 
@@ -653,16 +683,47 @@
                 if (produkAsli) produkAsli.stok -= itemBeli.qty;
             });
 
-            riwayatPenjualan.push({ waktu: new Date().toISOString(), total: grandTotal, metode: metode, jumlahItem: keranjang.length });
+            // 1. Generate No Nota Otomatis & Timestamp
+            const noNotaBaru = window.generateNomorNota();
+            const waktuTrx = new Date().toLocaleString('id-ID');
+            
+            // 2. Simpan Detail Transaksi Lengkap ke Memori/Array
+            const detailTransaksi = {
+                noNota: noNotaBaru,
+                waktu: waktuTrx,
+                items: JSON.parse(JSON.stringify(keranjang)), // Salin detail barang
+                subtotal: keranjang.reduce((sum, item) => sum + (item.harga * item.qty), 0),
+                diskon: parseFloat(document.getElementById('input-diskon').value) || 0,
+                total: grandTotal,
+                metode: metode,
+                bayar: bayar
+            };
+
+            // Tambahkan di urutan paling atas (terbaru)
+            riwayatPenjualan.unshift(detailTransaksi); 
             localStorage.setItem('pos_riwayat', JSON.stringify(riwayatPenjualan));
 
-            window.showToast("Transaksi Berhasil!", "success");
+            // 3. Tampilkan No Nota di elemen Cetak UI
+            document.getElementById('display-no-nota').innerText = noNotaBaru;
+            document.getElementById('waktu-transaksi').innerText = waktuTrx;
+
+            window.showToast(`Transaksi Berhasil! ${noNotaBaru}`, "success");
+            
+            // 4. Picu cetak struk (print)
             window.print();
+            
+            // 5. Kembalikan/Bersihkan UI Setelah Cetak
+            document.getElementById('display-no-nota').innerText = "";
             window.simpanKeStorage(); 
             simpanProdukKeCloud(); // Perbarui stok di cloud
             window.kosongkanKeranjang(true); 
             window.renderKatalog(); 
             window.renderTabelAdmin();
+            
+            // Refresh tabel riwayat otomatis jika modalnya sedang dibuka
+            if(document.getElementById('modal-riwayat').style.display === 'flex') {
+                window.renderTabelRiwayat();
+            }
         };
 
         // ==========================================
@@ -831,6 +892,99 @@
             };
             reader.readAsText(file);
         };
+
+        // ➕ FITUR BARU: MODUL RIWAYAT NOTA & CETAK ULANG =========================
+        
+        window.generateNomorNota = function() {
+            const today = new Date();
+            const tglString = today.getFullYear().toString() + 
+                              String(today.getMonth() + 1).padStart(2, '0') + 
+                              String(today.getDate()).padStart(2, '0');
+            
+            // Hitung transaksi di hari ini untuk penomoran otomatis
+            const transaksiHariIni = riwayatPenjualan.filter(trx => trx.noNota && trx.noNota.includes(tglString));
+            const nomorUrut = String(transaksiHariIni.length + 1).padStart(4, '0');
+            
+            return `INV-${tglString}-${nomorUrut}`;
+        };
+
+        window.bukaModalRiwayat = function() {
+            window.renderTabelRiwayat();
+            document.getElementById('modal-riwayat').style.display = 'flex';
+        };
+
+        window.renderTabelRiwayat = function() {
+            const tbody = document.getElementById('tabel-riwayat-nota');
+            tbody.innerHTML = '';
+
+            if (riwayatPenjualan.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px;">Belum ada riwayat transaksi yang tersimpan.</td></tr>`;
+                return;
+            }
+
+            riwayatPenjualan.forEach(trx => {
+                // Kompatibilitas jika ada data lama yang belum memiliki struktur item lengkap
+                const noNota = trx.noNota || '-';
+                const ringkasanItem = trx.items ? trx.items.map(i => `${i.nama} (${i.qty}x)`).join(', ') : `${trx.jumlahItem || 0} Item`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${noNota}</strong></td>
+                        <td>${trx.waktu}</td>
+                        <td><small>${ringkasanItem}</small></td>
+                        <td><strong>Rp ${formatRupiah(trx.total || 0)}</strong></td>
+                        <td>
+                            ${trx.noNota ? `<button class="btn-admin" style="padding: 6px 12px; font-size: 13px;" onclick="window.cetakUlangNota('${trx.noNota}')"><i class="fa-solid fa-print"></i> Cetak</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.cetakUlangNota = function(noNota) {
+            const trx = riwayatPenjualan.find(t => t.noNota === noNota);
+            if (!trx || !trx.items) {
+                return window.showToast('Data nota tidak lengkap / tidak ditemukan!', 'error');
+            }
+
+            // 1. Simpan state keranjang belanjaan pelanggan saat ini (agar tidak hilang)
+            const backupKeranjang = JSON.parse(JSON.stringify(keranjang));
+            const backupDiskon = document.getElementById('input-diskon').value;
+            const backupMetode = document.getElementById('metode-bayar').value;
+            const backupBayar = document.getElementById('input-bayar').value;
+
+            // 2. Ganti sementara (override) keranjang dengan data rincian dari riwayat
+            keranjang = JSON.parse(JSON.stringify(trx.items));
+            document.getElementById('input-diskon').value = trx.diskon || 0;
+            document.getElementById('metode-bayar').value = trx.metode || 'Tunai';
+            window.ubahMetodeBayar(); 
+            if (trx.metode === 'Tunai') {
+                document.getElementById('input-bayar').value = trx.bayar || 0;
+            }
+
+            // 3. Render ulang UI Area Nota dengan rincian lama
+            window.perbaruiTampilanKeranjang(); 
+            // override waktu yang barusan dibuat jadi NOW dengan waktu asli nota
+            document.getElementById('display-no-nota').innerText = trx.noNota;
+            document.getElementById('waktu-transaksi').innerText = trx.waktu;
+            window.kalkulasiTotal(); 
+            if (trx.metode === 'Tunai') window.hitungKembalian();
+
+            // 4. Picu jendela cetak bawaan perangkat
+            window.print();
+
+            // 5. Kembalikan state keranjang yang asli ke layar aplikasi
+            keranjang = backupKeranjang;
+            document.getElementById('input-diskon').value = backupDiskon;
+            document.getElementById('metode-bayar').value = backupMetode;
+            window.ubahMetodeBayar();
+            document.getElementById('input-bayar').value = backupBayar;
+            
+            document.getElementById('display-no-nota').innerText = "";
+            window.perbaruiTampilanKeranjang();
+            window.showToast(`Nota ${noNota} Berhasil Dicetak Ulang!`, "success");
+        };
+        // =========================================================================
 
         // ==========================================
         // INISIALISASI UTAMA
